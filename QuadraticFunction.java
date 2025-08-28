@@ -37,4 +37,31 @@ public class QuadraticFunction{
         }
         return str;
     }
+    public boolean equals(Object other){
+        if (!(other instanceof QuadraticFunction)){
+            return false;
+        }
+        QuadraticFunction otherfunction=(QuadraticFunction) other;
+        return a==otherfunction.a&&b===otherfunction.b&&c==otherfunction.c;
+    }
+    public int compareTo(QuadraticFunction other){
+        if (a>other.a){
+            return 1;
+        }else if(a<other.a){
+            return -1;
+        }else{
+            if (b>other.b){
+                return 1;
+            }else if (b<other.b){
+                return -1;
+            }else{
+                if (c>other.c){
+                    return 1;
+                }else if(c<other.c){
+                    return -1;
+                }
+                return 0;
+            }
+        }
+    }
 }
