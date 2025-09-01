@@ -42,7 +42,7 @@ public class QuadraticFunction{
             return false;
         }
         QuadraticFunction otherfunction=(QuadraticFunction) other;
-        return a==otherfunction.a&&b===otherfunction.b&&c==otherfunction.c;
+        return a==otherfunction.a&&b==otherfunction.b&&c==otherfunction.c;
     }
     public int compareTo(QuadraticFunction other){
         if (a>other.a){
