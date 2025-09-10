@@ -22,43 +22,40 @@ public class Lab1 {
     public static void quickSort(int[] array) {
         if (array.length<2){return;}
         int pivot=partition(array, 0, array.length-1);
+        //System.out.println("Partition done");
         quickSort(array,0,pivot-1);
+        //System.out.println("First half");
         quickSort(array,pivot,array.length-1);
+        //System.out.println("Second half");
     }
 
     // Quicksort part of an array
     private static void quickSort(int[] array, int begin, int end) {
-        if (end<=begin+1){
+        //System.out.println(begin+" "+end);
+        if (end<=begin){
             return;
         }
         int pivot=partition(array,begin,end);
-        int opposite=end;
-        int front=begin;
-        while(front<pivot||opposite>pivot){
-            if (array[front]<array[pivot]){
-                front++;
-            }else{
-                swap(array,front,opposite);
-            }
-            if (array[opposite]>array[pivot]){
-                opposite++;
-            }
-        }
-        quickSort(array,0,pivot-1);
-        quickSort(array,pivot+1,array.length);
+        //System.out.println("Pivot:"+pivot);
+        quickSort(array,begin,pivot-1);
+        quickSort(array,pivot+1,end);
     }
 
     // Partition part of an array, and return the index where the pivot
     // ended up.
     private static int partition(int[] array, int begin, int end) {
-        int pivot=median(array[begin],array[end],array[(begin+end)/2]);
-        int index=begin;
-        for (int i=begin;i<end;i++){
-            if (array[i]<pivot){
-                index++;
+        int pivot=begin;
+        while(begin<pivot||end>pivot){
+            if (array[begin]<=array[pivot]&&begin!=pivot){
+                begin++;
+            }else{
+                swap(array,begin,end);
+            }
+            if (array[end]>=array[pivot]&&end!=pivot){
+                end--;
             }
         }
-        return index;
+        return pivot;
     }
 
     // Swap two elements in an array
@@ -71,22 +68,26 @@ public class Lab1 {
     // Mergesort.
 
     public static int[] mergeSort(int[] array) {
-        return mergeSort(array,0,array.length);
+        if (array.length<2){
+            return array;
+        }
+        return mergeSort(array,0,array.length-1);
     }
 
     // Mergesort part of an array
     private static int[] mergeSort(int[] array, int begin, int end) {
-        if (end<=begin+1){
-            return Arrays.copyOfRange(array,begin,end);
+        if (end<=begin){
+            return Arrays.copyOfRange(array,begin,end+1);
         }
         int[] left=mergeSort(array,begin,(begin+end)/2);
-        int[] right=mergeSort(array,(begin+end/2),end);
-        for (int i:left){
-            System.out.println("Left"+i);
+        int[] right=mergeSort(array,(begin+end)/2+1,end);
+        /*for (int i=0;i<left.length;i++){
+            System.out.println("Left"+left[i]);
         }
-        for (int i:right){
-            System.out.println("Right"+i);
+        for (int i=0;i<right.length;i++){
+            System.out.println("Right"+right[i]);
         }
+        System.out.println(begin+" "+end);*/
         return merge(left,right);
     }
 
@@ -108,13 +109,5 @@ public class Lab1 {
             }
         }
         return combined;
-    }
-    private static int median(int a, int b, int c){
-        if (a>=b&&a<=c||a>=c&&a<=b){
-            return a;
-        }else if(b>=a&&b<=c||b>=c&&b<=a){
-            return b;
-        }
-        return c;
     }
 }
