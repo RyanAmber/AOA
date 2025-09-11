@@ -20,6 +20,7 @@ public class Lab1 {
     // Quicksort.
 
     public static void quickSort(int[] array) {
+        System.out.println("                      Start");
         if (array.length<2){return;}
         int pivot=partition(array, 0, array.length-1);
         //System.out.println("Partition done");
@@ -44,7 +45,10 @@ public class Lab1 {
     // Partition part of an array, and return the index where the pivot
     // ended up.
     private static int partition(int[] array, int begin, int end) {
-        int pivot=begin;
+        //int pivot=median(array, begin,end,(begin+end)/2);
+        int pivot =begin;
+        System.out.println(begin+" "+end);
+        System.out.println("Pivot "+pivot+"  "+array[pivot]);
         while(begin<pivot||end>pivot){
             if (array[begin]<=array[pivot]&&begin!=pivot){
                 begin++;
@@ -56,6 +60,19 @@ public class Lab1 {
             }
         }
         return pivot;
+    }
+    private static int median(int[] array, int a, int b, int c){
+        int[] arr=new int[3];
+        arr[0]=array[a];
+        arr[1]=array[b];
+        arr[2]=array[c];
+        Arrays.sort(arr);
+        if (arr[1]==array[a]){
+            return a;
+        }else if(arr[1]==array[b]){
+            return b;
+        }
+        return c;
     }
 
     // Swap two elements in an array

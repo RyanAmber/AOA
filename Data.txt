@@ -1,0 +1,68 @@
+Arrays of length 10
+=================================================================
+Algorithm      |         Random |     95% sorted |         Sorted
+Insertion sort |       0.000035 |       0.000079 |       0.000038
+Quicksort      |       0.000266 |       0.000173 |       0.000267
+Merge sort     |       0.001389 |       0.000760 |       0.000473
+
+Arrays of length 30
+=================================================================
+Algorithm      |         Random |     95% sorted |         Sorted
+Insertion sort |       0.000469 |       0.000242 |       0.000235
+Quicksort      |       0.001340 |       0.001620 |       0.001622
+Merge sort     |       0.000842 |       0.000881 |       0.001060
+
+Arrays of length 100
+=================================================================
+Algorithm      |         Random |     95% sorted |         Sorted
+Insertion sort |       0.002130 |       0.002584 |       0.004156
+Quicksort      |       0.024552 |       0.025460 |       0.024875
+Merge sort     |       0.003314 |       0.003229 |       0.003409
+
+Arrays of length 300
+=================================================================
+Algorithm      |         Random |     95% sorted |         Sorted
+Insertion sort |       0.055967 |       0.035108 |       0.032852
+Quicksort      |       0.145147 |       0.224530 |       0.464909
+Merge sort     |       0.033887 |       0.025816 |       0.020152
+
+Arrays of length 1000
+=================================================================
+Algorithm      |         Random |     95% sorted |         Sorted
+Insertion sort |       0.368360 |       0.172060 |       0.352872
+Quicksort      |       2.564936 |       2.428504 |       2.379193
+Merge sort     |       0.099207 |       0.085806 |       0.092605
+
+Arrays of length 3000
+=================================================================
+Algorithm      |         Random |     95% sorted |         Sorted
+Insertion sort |       3.252123 |       3.452421 |       3.063374
+Quicksort      |      14.184557 |      16.099350 |      15.020096
+Merge sort     |       0.241743 |       0.140348 |       0.144447
+
+Arrays of length 10000
+=================================================================
+Algorithm      |         Random |     95% sorted |         Sorted
+Insertion sort |      17.151231 |      15.967262 |      15.798218
+Quicksort      |     168.230448 |     163.004765 |     177.746279
+Merge sort     |       1.775503 |       0.829535 |       0.571062
+
+Arrays of length 30000
+=================================================================
+Algorithm      |         Random |     95% sorted |         Sorted
+Insertion sort |     157.135605 |     142.727381 |     141.746201
+Quicksort      | STACK OVERFLOW | STACK OVERFLOW | STACK OVERFLOW
+Merge sort     |       3.248063 |       1.651242 |       1.425974
+
+Arrays of length 100000
+=================================================================
+Algorithm      |         Random |     95% sorted |         Sorted
+Insertion sort |    1989.306344 |    1841.706142 |    1654.275009
+Quicksort      | STACK OVERFLOW | STACK OVERFLOW | STACK OVERFLOW
+Merge sort     |      10.874764 |       5.538526 |       5.278717
+
+At arrays of lower sizes, such as 100 or less, insertion sort is the easiest and fastest method to use. As you 
+move to arrays with sizes greater than 100, mergesort is the fastest method for sorting. Quick sort will struggle
+to work with arrays of many different sizes unless it is optimized to work with a more efficient method of getting
+a pivot to work with. Although insertion sort can become far more efficient with sorted data, it will not always
+be consistent enough to beat merge sort.
