@@ -1,3 +1,4 @@
+package ComparatorPractice;
 import java.util.*;
 public class QuadraticComparator implements Comparator<QuadraticFunction> {
     private double x;

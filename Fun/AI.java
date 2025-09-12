@@ -1,3 +1,4 @@
+package Fun;
 import java.util.*;
 public class AI {
     public static void main(String[] args) {
@@ -11,7 +12,7 @@ public class AI {
         }
         for (int i=0;i<200;i++){
             int guess=data.get((int)(Math.random()*data.size()));
-            if (guess==ans&&amt[guess]<10){
+            if (guess==ans&&amt[guess]<15){
                 data.add(guess);
                 amt[guess]++;
             }else if (amt[guess]>1){
@@ -21,7 +22,7 @@ public class AI {
             System.out.println(guess);
             if (Math.random()<0.01){
                 ans=(int)(Math.random()*6+1);
-                //System.out.println("CHANGE"+ans);
+                System.out.println("CHANGE");
                 //System.out.println(data);
             }
         }

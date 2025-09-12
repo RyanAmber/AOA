@@ -1,3 +1,4 @@
+package Lab1;
 //
 // HERE BE DRAGONS!
 //

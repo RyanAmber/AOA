@@ -1,3 +1,4 @@
+package ComparatorPractice;
 public class QuadraticFunction{
     private int a;
     private int b;

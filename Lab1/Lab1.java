@@ -1,3 +1,4 @@
+package Lab1;
 import java.util.Arrays;
 
 public class Lab1 {
@@ -61,7 +62,7 @@ public class Lab1 {
         }
         return pivot;
     }
-    private static int median(int[] array, int a, int b, int c){
+    /*private static int median(int[] array, int a, int b, int c){
         int[] arr=new int[3];
         arr[0]=array[a];
         arr[1]=array[b];
@@ -73,7 +74,7 @@ public class Lab1 {
             return b;
         }
         return c;
-    }
+    }*/
 
     // Swap two elements in an array
     private static void swap(int[] array, int i, int j) {
