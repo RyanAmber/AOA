@@ -209,6 +209,23 @@ public class ChessBoard {
                         }
         return false;
     }
+    private List<List<Integer>> getAllPossibleMoves(char player) {
+        List<List<Integer>> moves = new ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (board[i][j] != null && board[i][j].getColor() == player) {
+                    for (int r = 0; r < 8; r++) {
+                        for (int c = 0; c < 8; c++) {
+                            if (board[i][j].isValidMove(i, j, r, c, this)) {
+                                moves.add(Arrays.asList(i, j, r, c));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return moves;
+    }
 
     private int[] parsePosition(String pos) {
         if (pos.length() != 2) return null;
