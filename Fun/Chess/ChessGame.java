@@ -21,6 +21,14 @@ public class ChessGame {
                 System.out.println("Stalemate! Game over!");
                 break;
             }
+            if (board.isFiftyMoveRule()) {
+                System.out.println("Draw by 50-move rule! Game over!");
+                break;
+            }
+            if (board.isInsufficientMaterial()) {
+                System.out.println("Draw by insufficient material! Game over!");
+                break;
+            }
             if (board.isInCheck(currentPlayer)) {
                 System.out.println((currentPlayer == 'w' ? "White" : "Black") + " is in check!");
             }

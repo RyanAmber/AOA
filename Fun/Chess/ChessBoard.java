@@ -171,7 +171,40 @@ public class ChessBoard {
         if (!isInCheck(player)) return false;
         return !hasLegalMoves(player);
     }
-
+    public boolean isFiftyMoveRule() {
+        return halfmoveClock >= 100;
+    }
+    public boolean isInsufficientMaterial() {
+        List<ChessPiece> pieces = new ArrayList<>();
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 8; j++)
+                if (board[i][j] != null)
+                    pieces.add(board[i][j]);
+        if (pieces.size() == 2) return true; // Only kings
+        if (pieces.size() == 3) {
+            for (ChessPiece p : pieces)
+                if (p instanceof Bishop || p instanceof Knight)
+                    return true;
+        }
+        if (pieces.size() == 4) {
+            int bishopCount = 0;
+            for (ChessPiece p : pieces)
+                if (p instanceof Bishop)
+                    bishopCount++;
+            if (bishopCount == 2) {
+                // Check if both bishops are on same color
+                int b1Row = -1, b1Col = -1, b2Row = -1, b2Col = -1;
+                for (int i = 0; i < 8; i++)
+                    for (int j = 0; j < 8; j++)
+                        if (board[i][j] instanceof Bishop) {
+                            if (b1Row == -1) { b1Row = i; b1Col = j; }
+                            else { b2Row = i; b2Col = j; }
+                        }
+                return ((b1Row + b1Col) % 2) == ((b2Row + b2Col) % 2);
+            }
+        }
+        return false;
+    }
     public boolean isInStalemate(char player) {
         if (isInCheck(player)) return false;
         return !hasLegalMoves(player);
@@ -260,6 +293,7 @@ public class ChessBoard {
     }
 
     public void printBoard() {
+        System.out.println("  a b c d e f g h");
         for (int i = 0; i < 8; i++) {
             System.out.print((8 - i) + " ");
             for (int j = 0; j < 8; j++) {

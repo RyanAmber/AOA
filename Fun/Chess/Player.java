@@ -17,7 +17,8 @@ public class Player {
         }else if (type==2){
             List<List<Integer>> allMoves = board.getAllLegalMoves(board.copyBoard(), team);
             for (List<Integer> m : allMoves) {
-                //System.out.println((char)('a' + m.get(1)) + "" + (8 - m.get(0)) + " to " + (char)('a' + m.get(3)) + "" + (8 - m.get(2)));
+                //board.makeMove(m.get(0), m.get(1), team, new Scanner(System.in));
+                System.out.println("" + (char)('a' + m.get(1)) + (8 - m.get(0)) + " to " + (char)('a' + m.get(3)) + (8 - m.get(2)));
             }
             if (allMoves.size() > 0) {
                 Random rand = new Random();
