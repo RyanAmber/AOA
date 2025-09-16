@@ -28,9 +28,14 @@ public class ChessGame {
             System.out.println((currentPlayer == 'w' ? "White" : "Black") + "'s move.");
             String[] move=new String[2];
             if (currentPlayer=='w'){
-                move=p1.getMove(board);
+                move=p1.getMove(board,'w');
             }else{
-               move=p2.getMove(board);
+               move=p2.getMove(board,'b');
+            }
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
 
             boolean moveResult = board.movePiece(move[0], move[1], currentPlayer, scanner);

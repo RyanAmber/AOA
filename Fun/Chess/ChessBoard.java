@@ -144,7 +144,7 @@ public class ChessBoard {
     }
 
     // Simple deep copy for undo
-    private ChessPiece[][] copyBoard() {
+    public ChessPiece[][] copyBoard() {
         ChessPiece[][] copy = new ChessPiece[8][8];
         for (int i = 0; i < 8; i++)
             for (int j = 0; j < 8; j++)
@@ -209,22 +209,46 @@ public class ChessBoard {
                         }
         return false;
     }
-    private List<List<Integer>> getAllPossibleMoves(char player) {
-        List<List<Integer>> moves = new ArrayList<>();
+    public List<List<Integer>> getAllLegalMoves(ChessPiece[][] pieces, char player) {
+        List<List<Integer>> allMoves = new ArrayList<>();
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if (board[i][j] != null && board[i][j].getColor() == player) {
+                if (pieces[i][j] != null && pieces[i][j].getColor() == player) {
                     for (int r = 0; r < 8; r++) {
                         for (int c = 0; c < 8; c++) {
-                            if (board[i][j].isValidMove(i, j, r, c, this)) {
-                                moves.add(Arrays.asList(i, j, r, c));
+                            if (i == r && j == c) continue;
+                            if (pieces[i][j].isValidMove(i, j, r, c, this)) {
+                                // Simulate move
+                                ChessPiece[][] snapshot = copyBoard();
+                                boolean[] castleK = canCastleKingSide.clone();
+                                boolean[] castleQ = canCastleQueenSide.clone();
+                                int[] kingPosSnap = kingPosition.clone();
+                                int[] enPassantSnap = enPassantTarget == null ? null : enPassantTarget.clone();
+
+                                ChessPiece target = pieces[r][c];
+                                pieces[r][c] = pieces[i][j];
+                                pieces[i][j] = null;
+                                if (pieces[r][c] instanceof King) {
+                                    if (player == 'w') { kingPosition[0] = r; kingPosition[1] = c; }
+                                    else { kingPosition[2] = r; kingPosition[3] = c; }
+                                }
+                                boolean legal = !isInCheck(player);
+                                // Undo
+                                pieces = snapshot;
+                                canCastleKingSide = castleK;
+                                canCastleQueenSide = castleQ;
+                                kingPosition = kingPosSnap;
+                                enPassantTarget = enPassantSnap;
+                                if (legal) {
+                                    allMoves.add(Arrays.asList(i, j, r, c));
+                                }
                             }
                         }
                     }
                 }
             }
         }
-        return moves;
+        return allMoves;
     }
 
     private int[] parsePosition(String pos) {
