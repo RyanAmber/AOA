@@ -30,6 +30,9 @@ public class ChessBoard {
         board[0][3] = new Queen('b');  board[0][4] = new King('b');
         board[7][3] = new Queen('w');  board[7][4] = new King('w');
     }
+    public void setupBoard(ChessPiece[][] newBoard) {
+        board = newBoard;
+    }
 
     public boolean movePiece(String from, String to, char player, Scanner scanner) {
         int[] fromIdx = parsePosition(from);
@@ -242,36 +245,42 @@ public class ChessBoard {
                         }
         return false;
     }
-    public List<List<Integer>> getAllLegalMoves(ChessPiece[][] pieces, char player) {
+    public List<List<Integer>> getAllLegalMoves(char player) {
         List<List<Integer>> allMoves = new ArrayList<>();
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if (pieces[i][j] != null && pieces[i][j].getColor() == player) {
+                ChessPiece piece = board[i][j];
+                if (piece != null && piece.getColor() == player) {
                     for (int r = 0; r < 8; r++) {
                         for (int c = 0; c < 8; c++) {
                             if (i == r && j == c) continue;
-                            if (pieces[i][j].isValidMove(i, j, r, c, this)) {
-                                // Simulate move
+                            if (piece.isValidMove(i, j, r, c, this)) {
+                                // Save state
                                 ChessPiece[][] snapshot = copyBoard();
                                 boolean[] castleK = canCastleKingSide.clone();
                                 boolean[] castleQ = canCastleQueenSide.clone();
                                 int[] kingPosSnap = kingPosition.clone();
                                 int[] enPassantSnap = enPassantTarget == null ? null : enPassantTarget.clone();
 
-                                ChessPiece target = pieces[r][c];
-                                pieces[r][c] = pieces[i][j];
-                                pieces[i][j] = null;
-                                if (pieces[r][c] instanceof King) {
+                                // Simulate move
+                                ChessPiece movedPiece = board[i][j];
+                                ChessPiece captured = board[r][c];
+                                board[r][c] = movedPiece;
+                                board[i][j] = null;
+                                if (movedPiece instanceof King) {
                                     if (player == 'w') { kingPosition[0] = r; kingPosition[1] = c; }
                                     else { kingPosition[2] = r; kingPosition[3] = c; }
                                 }
+
                                 boolean legal = !isInCheck(player);
+
                                 // Undo
-                                pieces = snapshot;
+                                board = snapshot;
                                 canCastleKingSide = castleK;
                                 canCastleQueenSide = castleQ;
                                 kingPosition = kingPosSnap;
                                 enPassantTarget = enPassantSnap;
+
                                 if (legal) {
                                     allMoves.add(Arrays.asList(i, j, r, c));
                                 }
