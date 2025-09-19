@@ -1,3 +1,4 @@
+
 public class Haiku extends Poem{
     public int numLines(){
         return 3;

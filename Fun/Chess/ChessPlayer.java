@@ -1,10 +1,10 @@
-package Fun.Chess;
+//package Fun.Chess;
 
 import java.util.*;
 
-public class Player {
+public class ChessPlayer {
     private int type;
-    public Player(int type){
+    public ChessPlayer(int type){
         this.type=type;
     }
     public String[] getMove(ChessBoard board, char team){
@@ -28,14 +28,15 @@ public class Player {
                 scores.put(m,score(testboard,team));
             }
             //System.out.println("All moves listed");
-            int maxscore=Integer.MIN_VALUE;
+            int minimaxscore=team=='w'?Integer.MIN_VALUE:Integer.MAX_VALUE;
             List<List<Integer>> bestMoves=new ArrayList<List<Integer>>();
             for (Map.Entry<List<Integer>, Integer> entry : scores.entrySet()) {
-                if (entry.getValue()>maxscore){
-                    maxscore=entry.getValue();
+                if (team=='w'?entry.getValue()>minimaxscore:entry.getValue()<minimaxscore){
+                    minimaxscore=entry.getValue();
                     bestMoves.clear();
                     bestMoves.add(entry.getKey());
-                }else if(entry.getValue()==maxscore){
+                    System.out.println(minimaxscore+" "+entry.getValue()+" "+entry.getKey());
+                }else if(entry.getValue()==minimaxscore){
                     bestMoves.add(entry.getKey());
                 }
             }
@@ -57,7 +58,7 @@ public class Player {
         ChessBoard b=new ChessBoard();
         b.setupBoard(board);
         int score=0;
-        int pieceValues[]={0,1,3,3,5,9,1000};
+        int pieceValues[]={0,1,3,3,5,9};
         for (int r=0;r<8;r++){
             for (int c=0;c<8;c++){
                 if (board[r][c]!=null){
@@ -68,9 +69,8 @@ public class Player {
                         case "B": val=pieceValues[3]; break;
                         case "R": val=pieceValues[4]; break;
                         case "Q": val=pieceValues[5]; break;
-                        case "K": val=pieceValues[6]; break;
                     }
-                    if (board[r][c].getColor()==team){
+                    if (board[r][c].getColor()=='w'){
                         score+=val;
                     }else{
                         score-=val;
@@ -78,11 +78,21 @@ public class Player {
                 }
             }
         }
-        if (b.isInCheck(team=='w'?'b':'w')){
-            score+=50;
+        if (b.isInCheck('w')){
+            score-=1;
+        }else if(b.isInCheck('b')){
+            score+=1;
         }
-        if (b.isInCheckmate(team=='w'?'b':'w')){
+        if (b.isInCheckmate('w')){
+            score-=10000;
+        }else if(b.isInCheckmate('b')){
             score+=10000;
+        }
+        if (b.isInStalemate('w')||b.isInStalemate('b')){
+            score=0;
+        }
+        if (b.isInsufficientMaterial()){
+            score=0;
         }
         return score;
     }

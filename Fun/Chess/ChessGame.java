@@ -1,4 +1,4 @@
-package Fun.Chess;
+//package Fun.Chess;
 import java.util.Scanner;
 
 public class ChessGame {
@@ -6,9 +6,9 @@ public class ChessGame {
         ChessBoard board = new ChessBoard();
         Scanner scanner = new Scanner(System.in);
         System.out.println("Who is player one? [1] Human, [2] Robot, [3] Random");
-        Player p1=new Player(scanner.nextInt());
+        ChessPlayer p1=new ChessPlayer(scanner.nextInt());
         System.out.println("Who is player two? [1] Human, [2] Robot, [3] Random");
-        Player p2=new Player(scanner.nextInt());
+        ChessPlayer p2=new ChessPlayer(scanner.nextInt());
         char currentPlayer = 'w';
 
         while (true) {
