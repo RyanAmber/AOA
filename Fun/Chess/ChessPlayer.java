@@ -75,6 +75,7 @@ public class ChessPlayer {
                     }else{
                         score-=val;
                     }
+                    //System.out.println(score);
                 }
             }
         }
