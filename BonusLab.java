@@ -10,7 +10,7 @@ public class BonusLab {
             power.add(scanner.nextInt());
         }
         String total="";
-        for (int iter=0;iter<iterations;iter++){
+        for (int iter=0;iter<iterations&&iter<nums;iter++){
             int max=-1;
             int top=0;
             int added=0;
@@ -26,11 +26,12 @@ public class BonusLab {
             total+=(top+1)+" ";
             for (int i=0;i<iterations+added&&i<power.size();i++){
                 if(i!=top){
-                    power.set(i, power.get(i)>0?power.get(i) - 1:0);
+                    power.set(i, power.get(i)>0?power.get(i) - 1:power.get(i));
                 }else{
                     power.set(i,-1);
                 }
             }
+            System.out.println(power);
         }
         System.out.println(total);
         scanner.close();

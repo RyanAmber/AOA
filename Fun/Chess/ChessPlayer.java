@@ -16,7 +16,7 @@ public class ChessPlayer {
             move[1] = s.next();
         }else if (type==2){
             List<List<Integer>> allMoves = board.getAllLegalMoves(team);
-            Map<List<Integer>,Integer> scores=new HashMap<List<Integer>,Integer>();
+            Map<List<Integer>,Double> scores=new HashMap<List<Integer>,Double>();
             for (List<Integer> m : allMoves) {
                 int startrow=m.get(0);
                 int startcol=m.get(1);
@@ -28,9 +28,9 @@ public class ChessPlayer {
                 scores.put(m,score(testboard,team));
             }
             //System.out.println("All moves listed");
-            int minimaxscore=team=='w'?Integer.MIN_VALUE:Integer.MAX_VALUE;
+            double minimaxscore=team=='w'?Double.NEGATIVE_INFINITY:Double.POSITIVE_INFINITY;
             List<List<Integer>> bestMoves=new ArrayList<List<Integer>>();
-            for (Map.Entry<List<Integer>, Integer> entry : scores.entrySet()) {
+            for (Map.Entry<List<Integer>, Double> entry : scores.entrySet()) {
                 if (team=='w'?entry.getValue()>minimaxscore:entry.getValue()<minimaxscore){
                     minimaxscore=entry.getValue();
                     bestMoves.clear();
@@ -54,9 +54,70 @@ public class ChessPlayer {
         }
         return move;
     }
-    public int score(ChessPiece[][] board, char team){
+    public double score(ChessPiece[][] board, char team){
         ChessBoard b=new ChessBoard();
         b.setupBoard(board);
+        double score=0;
+        int weights[]={0,1,3,3,5,9};
+        score+=pieceValues(board,team,weights);//AI adjust
+        List<List<Integer>> moveList=b.getAllLegalMoves(team);
+        for (List<Integer> move:moveList){
+            score+=0.005;//AI adjust
+            int fromX=move.get(0);
+            int fromY=move.get(1);
+            int toX=move.get(2);
+            int toY=move.get(3);
+            ChessPiece myPiece=board[fromX][fromY];
+            ChessPiece theirPiece=board[toX][toY];
+            if (theirPiece!=null&&myPiece!=null){
+                int myValue=0;
+                int theirValue=0;
+                switch (myPiece.toString()){
+                    case "P": myValue=weights[1]; break;
+                    case "N": myValue=weights[2]; break;
+                    case "B": myValue=weights[3]; break;
+                    case "R": myValue=weights[4]; break;
+                    case "Q": myValue=weights[5]; break;
+                }
+                switch (theirPiece.toString()){
+                    case "P": theirValue=weights[1]; break;
+                    case "N": theirValue=weights[2]; break;
+                    case "B": theirValue=weights[3]; break;
+                    case "R": theirValue=weights[4]; break;
+                    case "Q": theirValue=weights[5]; break;
+                }
+                score+=(theirValue-myValue/5)*0.1;//AI adjust
+            }
+        }
+        score+=1*kingSafety(board,team);//AI adjust
+        score+=-1*kingSafety(board,team=='w'?'b':'w');//AI adjust
+        score+=1*rookFiles(board,team);//AI adjust
+        score+=-1*rookFiles(board,team=='w'?'b':'w');//AI adjust
+       /*More middle nodes
+        *Defend pieces
+        *Pawn progression
+        *Rook on open files
+        *Dodge opponent attacks
+        */
+        if (b.isInCheck('w')){
+            score-=1;//AI adjust
+        }else if(b.isInCheck('b')){
+            score+=1;//AI adjust
+        }
+        if (b.isInCheckmate('w')){
+            score-=10000;
+        }else if(b.isInCheckmate('b')){
+            score+=10000;
+        }
+        if (b.isInStalemate('w')||b.isInStalemate('b')){
+            score=0;
+        }
+        if (b.isInsufficientMaterial()){
+            score=0;
+        }
+        return score;
+    }
+    public int pieceValues(ChessPiece[][] board, char team, int weights[]){
         int score=0;
         int pieceValues[]={0,1,3,3,5,9};
         for (int r=0;r<8;r++){
@@ -75,26 +136,59 @@ public class ChessPlayer {
                     }else{
                         score-=val;
                     }
-                    //System.out.println(score);
+                }
+            }
+        }        
+        return score;
+    }
+    public static int kingSafety(ChessPiece[][] board, char team){
+        int safety=0;
+        int kingRow=-1;
+        int kingCol=-1;
+        for (int r=0;r<8;r++){
+            for (int c=0;c<8;c++){
+                if (board[r][c]!=null&&board[r][c].toString().equals("K")&&board[r][c].getColor()==team){
+                    kingRow=r;
+                    kingCol=c;
                 }
             }
         }
-        if (b.isInCheck('w')){
-            score-=1;
-        }else if(b.isInCheck('b')){
-            score+=1;
+        if (kingRow!=-1&&kingCol!=-1){
+            int[][] directions={{-1,0},{1,0},{0,-1},{0,1},{-1,-1},{-1,1},{1,-1},{1,1}};
+            for (int[] dir:directions){
+                int newRow=kingRow+dir[0];
+                int newCol=kingCol+dir[1];
+                if (newRow>=0&&newRow<8&&newCol>=0&&newCol<8){
+                    if (board[newRow][newCol]==null||board[newRow][newCol].getColor()==team){
+                        safety+=1;//AI adjust
+                    }else if (board[newRow][newCol].getColor()!=team){
+                        safety-=1;//AI adjust
+                    }
+                }else{
+                    safety-=1;//AI adjust
+                }
+            }
         }
-        if (b.isInCheckmate('w')){
-            score-=10000;
-        }else if(b.isInCheckmate('b')){
-            score+=10000;
+        return safety;
+    }
+    public static int rookFiles(ChessPiece[][] board, char team){
+        int openFiles=0;
+        for (int c=0;c<8;c++){
+            boolean hasRook=false;
+            boolean isOpen=true;
+            for (int r=0;r<8;r++){
+                if (board[r][c]!=null){
+                    if (board[r][c].toString().equals("R")&&board[r][c].getColor()==team){
+                        hasRook=true;
+                    }else if (board[r][c].toString().equals("P")&&board[r][c].getColor()==team){
+                        isOpen=false;
+                    }
+                }
+            }
+            if (hasRook&&isOpen){
+                openFiles++;
+            }
         }
-        if (b.isInStalemate('w')||b.isInStalemate('b')){
-            score=0;
-        }
-        if (b.isInsufficientMaterial()){
-            score=0;
-        }
-        return score;
+        return openFiles;
     }
 }
