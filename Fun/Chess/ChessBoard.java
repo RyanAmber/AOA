@@ -117,7 +117,8 @@ public class ChessBoard {
         // Promotion input
         if (isPromotion) {
             System.out.print("Promote to (Q, R, B, N): ");
-            String promo = scanner.next().toUpperCase();
+            //String promo = scanner.next().toUpperCase();
+            String promo = "Q"; // Auto-queen for simplicity
             ChessPiece promoted = switch (promo) {
                 case "Q" -> new Queen(player);
                 case "R" -> new Rook(player);
@@ -127,6 +128,9 @@ public class ChessBoard {
             };
             board[toIdx[0]][toIdx[1]] = promoted;
         }
+        halfmoveClock = (piece instanceof Pawn || board[toIdx[0]][toIdx[1]] != null) ? 0 : halfmoveClock + 1;
+        System.out.println(halfmoveClock);
+        if (player == 'b') fullmoveNumber++;
         return true;
     }
 
@@ -164,9 +168,13 @@ public class ChessBoard {
     public boolean isSquareAttacked(int row, int col, char byPlayer) {
         for (int i = 0; i < 8; i++)
             for (int j = 0; j < 8; j++)
-                if (board[i][j] != null && board[i][j].getColor() == byPlayer)
-                    if (board[i][j].isValidMove(i, j, row, col, this))
+                if (board[i][j] != null && board[i][j].getColor() == byPlayer){
+                    if((board[i][j] instanceof King && Math.abs(i - row) <= 1 && Math.abs(j - col) <= 1)){
                         return true;
+                    }
+                    else if (board[i][j].isValidMove(i, j, row, col, this))
+                        return true;
+                }
         return false;
     }
 

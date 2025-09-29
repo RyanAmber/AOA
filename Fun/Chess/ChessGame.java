@@ -3,55 +3,93 @@ import java.util.Scanner;
 
 public class ChessGame {
     public static void main(String[] args) {
-        ChessBoard board = new ChessBoard();
         Scanner scanner = new Scanner(System.in);
+
         System.out.println("Who is player one? [1] Human, [2] Robot, [3] Random");
-        ChessPlayer p1=new ChessPlayer(scanner.nextInt());
+        ChessPlayer p1 = new ChessPlayer(scanner.nextInt());
+
         System.out.println("Who is player two? [1] Human, [2] Robot, [3] Random");
-        ChessPlayer p2=new ChessPlayer(scanner.nextInt());
-        char currentPlayer = 'w';
+        ChessPlayer p2 = new ChessPlayer(scanner.nextInt());
 
-        while (true) {
-            board.printBoard();
-            if (board.isInCheckmate(currentPlayer)) {
-                System.out.println((currentPlayer == 'w' ? "White" : "Black") + " is in checkmate. Game over!");
-                break;
-            }
-            if (board.isInStalemate(currentPlayer)) {
-                System.out.println("Stalemate! Game over!");
-                break;
-            }
-            if (board.isFiftyMoveRule()) {
-                System.out.println("Draw by 50-move rule! Game over!");
-                break;
-            }
-            if (board.isInsufficientMaterial()) {
-                System.out.println("Draw by insufficient material! Game over!");
-                break;
-            }
-            if (board.isInCheck(currentPlayer)) {
-                System.out.println((currentPlayer == 'w' ? "White" : "Black") + " is in check!");
-            }
+        int w1 = 0;
+        int w2 = 0;
+        int t = 0;
 
-            System.out.println((currentPlayer == 'w' ? "White" : "Black") + "'s move.");
-            String[] move=new String[2];
-            if (currentPlayer=='w'){
-                move=p1.getMove(board,'w');
-            }else{
-               move=p2.getMove(board,'b');
-            }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        for (int i = 0; i < 20; i++) {
+            char currentPlayer = 'w';
+            boolean gameOver = false;
+            ChessBoard board = new ChessBoard();
 
-            boolean moveResult = board.movePiece(move[0], move[1], currentPlayer, scanner);
-            if (moveResult) {
-                currentPlayer = (currentPlayer == 'w') ? 'b' : 'w';
-            } else {
-                System.out.println("Invalid move. Try again.");
+            while (!gameOver) {
+                board.printBoard();
+
+                if (board.isInCheckmate(currentPlayer)) {
+                    System.out.println((currentPlayer == 'w' ? "White" : "Black") + " is in checkmate. Game over!");
+                    if (currentPlayer == 'w') {
+                        w2++;
+                    } else {
+                        w1++;
+                    }
+                    gameOver = true;
+                    continue;
+                }
+
+                if (board.isInStalemate(currentPlayer)) {
+                    System.out.println("Stalemate! Game over!");
+                    t++;
+                    gameOver = true;
+                    continue;
+                }
+
+                if (board.isFiftyMoveRule()) {
+                    System.out.println("Draw by 50-move rule! Game over!");
+                    t++;
+                    gameOver = true;
+                    continue;
+                }
+
+                if (board.isInsufficientMaterial()) {
+                    System.out.println("Draw by insufficient material! Game over!");
+                    t++;
+                    gameOver = true;
+                    continue;
+                }
+
+                if (board.isInCheck(currentPlayer)) {
+                    System.out.println((currentPlayer == 'w' ? "White" : "Black") + " is in check!");
+                }
+
+                if (!gameOver) {
+                    System.out.println((currentPlayer == 'w' ? "White" : "Black") + "'s move.");
+                    String[] move;
+                    if (currentPlayer == 'w') {
+                        move = p1.getMove(board, 'w');
+                    } else {
+                        move = p2.getMove(board, 'b');
+                    }
+
+                    /*
+                     try {
+                         Thread.sleep(1000);
+                     } catch (InterruptedException e) {
+                         e.printStackTrace();
+                     }
+                    */
+
+                    boolean moveResult = board.movePiece(move[0], move[1], currentPlayer, scanner);
+                    if (moveResult) {
+                        currentPlayer = (currentPlayer == 'w') ? 'b' : 'w';
+                    } else {
+                        System.out.println("Invalid move. Try again.");
+                    }
+                }
             }
         }
+
+        System.out.println("Player one wins: " + w1);
+        System.out.println("Player two wins: " + w2);
+        System.out.println("Ties: " + t);
+
+        scanner.close();
     }
 }
