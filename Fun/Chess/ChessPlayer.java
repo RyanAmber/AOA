@@ -40,6 +40,7 @@ public class ChessPlayer {
                     bestMoves.add(entry.getKey());
                 }
             }
+            System.out.println(minimaxscore);
             List<Integer> moveIndices = bestMoves.get(new Random().nextInt(bestMoves.size()));
             move[0] = "" + (char)('a' + moveIndices.get(1)) + (8 - moveIndices.get(0));
             move[1] = "" + (char)('a' + moveIndices.get(3)) + (8 - moveIndices.get(2));
@@ -59,7 +60,7 @@ public class ChessPlayer {
         b.setupBoard(board);
         double score=0;
         int weights[]={0,1,3,3,5,9};
-        score+=0.3*pieceValues(board,team,weights);//AI adjust
+        score+=0.7*pieceValues(board,team,weights);//AI adjust
         List<List<Integer>> moveList=b.getAllLegalMoves(team);
         for (List<Integer> move:moveList){
             score+=0.02;//AI adjust
@@ -94,7 +95,7 @@ public class ChessPlayer {
         }
         List<List<Integer>> theirMoveList=b.getAllLegalMoves(team=='w'?'b':'w');
         for (List<Integer> move:theirMoveList){
-            score-=0.002;//AI adjust
+            score-=0.004;//AI adjust
             int fromX=move.get(0);
             int fromY=move.get(1);
             int toX=move.get(2);
@@ -122,9 +123,9 @@ public class ChessPlayer {
             }
         }
         score+=1*kingSafety(board,team);//AI adjust
-        score+=-1*kingSafety(board,team=='w'?'b':'w');//AI adjust
+        //score+=-1*kingSafety(board,team=='w'?'b':'w');//AI adjust
         score+=1*rookFiles(board,team);//AI adjust
-        score+=-1*rookFiles(board,team=='w'?'b':'w');//AI adjust
+        //score+=-1*rookFiles(board,team=='w'?'b':'w');//AI adjust
         score+=1*pawnProgress(board,team);
         if (b.isInCheck('w')){
             score-=1;//AI adjust
@@ -186,13 +187,13 @@ public class ChessPlayer {
                 int newRow=kingRow+dir[0];
                 int newCol=kingCol+dir[1];
                 if (newRow>=0&&newRow<8&&newCol>=0&&newCol<8){
-                    if (board[newRow][newCol]==null){
+                    if (board[newRow][newCol]==null||board[newRow][newCol].getColor()==team){
                         safety+=0.5;//AI adjust
                     }else if (board[newRow][newCol].getColor()!=team){
                         safety-=0.5;//AI adjust
                     }
                 }else{
-                    safety-=0.5;//AI adjust
+                    safety+=0.6;//AI adjust
                 }
             }
         }
@@ -224,13 +225,13 @@ public class ChessPlayer {
             for (int r=0;r<8;r++){
                 if (board[r][c]!=null&&board[r][c].toString().equals("P")&&board[r][c].getColor()==team){
                     if (team=='w'){
-                        progress+=r/10;//AI adjust
+                        progress+=r/10.0;//AI adjust
                     }else{
-                        progress+=(7-r)/10;//AI adjust
+                        progress+=(7.0-r)/10.0;//AI adjust
                     }
                 }
             }
         }
-        return progress;
+        return progress*2.0;//AI adjust
     }
 }

@@ -128,8 +128,8 @@ public class ChessBoard {
             };
             board[toIdx[0]][toIdx[1]] = promoted;
         }
-        halfmoveClock = (piece instanceof Pawn || board[toIdx[0]][toIdx[1]] != null) ? 0 : halfmoveClock + 1;
-        System.out.println(halfmoveClock);
+        halfmoveClock = (piece instanceof Pawn && !(board[toIdx[0]][toIdx[1]] != null)) ? 0 : halfmoveClock + 1;
+        //System.out.println(halfmoveClock);
         if (player == 'b') fullmoveNumber++;
         return true;
     }
@@ -172,7 +172,7 @@ public class ChessBoard {
                     if((board[i][j] instanceof King && Math.abs(i - row) <= 1 && Math.abs(j - col) <= 1)){
                         return true;
                     }
-                    else if (board[i][j].isValidMove(i, j, row, col, this))
+                    else if (!(board[i][j] instanceof King)&&board[i][j].isValidMove(i, j, row, col, this))
                         return true;
                 }
         return false;
