@@ -37,8 +37,10 @@ public class ChessBoard {
     public boolean movePiece(String from, String to, char player, Scanner scanner) {
         int[] fromIdx = parsePosition(from);
         int[] toIdx = parsePosition(to);
+        int end1=toIdx[0];
+        int end2=toIdx[1];
         if (fromIdx == null || toIdx == null) return false;
-
+        
         ChessPiece piece = board[fromIdx[0]][fromIdx[1]];
         if (piece == null || piece.getColor() != player) return false;
 
@@ -128,7 +130,7 @@ public class ChessBoard {
             };
             board[toIdx[0]][toIdx[1]] = promoted;
         }
-        halfmoveClock = (piece instanceof Pawn && !(board[toIdx[0]][toIdx[1]] != null)) ? 0 : halfmoveClock + 1;
+        halfmoveClock = (piece instanceof Pawn || (board[end1][end2] != null)) ? 0 : halfmoveClock + 1;
         //System.out.println(halfmoveClock);
         if (player == 'b') fullmoveNumber++;
         return true;
@@ -183,7 +185,7 @@ public class ChessBoard {
         return !hasLegalMoves(player);
     }
     public boolean isFiftyMoveRule() {
-        return halfmoveClock >= 100;
+        return halfmoveClock > 100;
     }
     public boolean isInsufficientMaterial() {
         List<ChessPiece> pieces = new ArrayList<>();
@@ -218,6 +220,7 @@ public class ChessBoard {
     }
     public boolean isInStalemate(char player) {
         if (isInCheck(player)) return false;
+        System.out.println("Checking for stalemate for player " + player);
         return !hasLegalMoves(player);
     }
 
@@ -248,7 +251,11 @@ public class ChessBoard {
                                 canCastleQueenSide = castleQ;
                                 kingPosition = kingPosSnap;
                                 enPassantTarget = enPassantSnap;
-                                if (legal) return true;
+
+                                if (legal) {
+                                    System.out.println("Legal move found: " + (char)('a' + j) + (8 - i) + " to " + (char)('a' + c) + (8 - r));
+                                    return true;
+                                }
                             }
                         }
         return false;

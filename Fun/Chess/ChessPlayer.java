@@ -23,24 +23,36 @@ public class ChessPlayer {
                 int endrow=m.get(2);
                 int endcol=m.get(3);
                 ChessPiece[][] testboard=board.copyBoard();
+            int moves=board.halfmoveClock;
+                if (testboard[endrow][endcol]!=null||testboard[startrow][startcol].toString().equals("P")){
+                    moves=0;
+                }else{
+                    moves++;
+                }
                 testboard[endrow][endcol] = testboard[startrow][startcol];
                 testboard[startrow][startcol] = null;
-                scores.put(m,score(testboard,team));
+                scores.put(m,score(testboard,team,moves));
             }
             //System.out.println("All moves listed");
             double minimaxscore=team=='w'?Double.NEGATIVE_INFINITY:Double.POSITIVE_INFINITY;
             List<List<Integer>> bestMoves=new ArrayList<List<Integer>>();
             for (Map.Entry<List<Integer>, Double> entry : scores.entrySet()) {
+                int fromRow = entry.getKey().get(0);
+                int fromCol = entry.getKey().get(1);
+                int toRow = entry.getKey().get(2);
+                int toCol = entry.getKey().get(3);
+                String fromNotation = "" + (char)('a' + fromCol) + (8 - fromRow);
+                String toNotation = "" + (char)('a' + toCol) + (8 - toRow);
+                System.out.println(minimaxscore + " " + entry.getValue() + " " + fromNotation + " " + toNotation);
                 if (team=='w'?entry.getValue()>minimaxscore:entry.getValue()<minimaxscore){
                     minimaxscore=entry.getValue();
                     bestMoves.clear();
                     bestMoves.add(entry.getKey());
-                    //System.out.println(minimaxscore+" "+entry.getValue()+" "+entry.getKey());
                 }else if(entry.getValue()==minimaxscore){
                     bestMoves.add(entry.getKey());
                 }
             }
-            System.out.println(minimaxscore);
+            System.out.println(board.halfmoveClock);
             List<Integer> moveIndices = bestMoves.get(new Random().nextInt(bestMoves.size()));
             move[0] = "" + (char)('a' + moveIndices.get(1)) + (8 - moveIndices.get(0));
             move[1] = "" + (char)('a' + moveIndices.get(3)) + (8 - moveIndices.get(2));
@@ -53,15 +65,16 @@ public class ChessPlayer {
                 move[1] = "" + (char)('a' + moveIndices.get(3)) + (8 - moveIndices.get(2));
             }
         }
+        System.out.println("Chosen move: " + move[0] + " to " + move[1]);
         return move;
     }
-    public double score(ChessPiece[][] board, char team){
+    public double score(ChessPiece[][] board, char team,int moves){
         ChessBoard b=new ChessBoard();
         b.setupBoard(board);
         double score=0;
         int weights[]={0,1,3,3,5,9};
-        score+=0.7*pieceValues(board,team,weights);//AI adjust
-        List<List<Integer>> moveList=b.getAllLegalMoves(team);
+        score+=pieceValues(board,team,weights);//AI adjust
+        List<List<Integer>> moveList=b.getAllLegalMoves('w');
         for (List<Integer> move:moveList){
             score+=0.02;//AI adjust
             int fromX=move.get(0);
@@ -87,21 +100,21 @@ public class ChessPlayer {
                     case "R": theirValue=weights[4]; break;
                     case "Q": theirValue=weights[5]; break;
                 }
-                if(theirPiece.getColor()!=team)
-                score+=(theirValue-myValue/5/*AI adjust */)*0.1;//AI adjust
+                if(theirPiece.getColor()!='w')
+                score+=(theirValue-myValue/5/*AI adjust */)*0.5;//AI adjust
                 else
-                score+=(theirValue-myValue/2/*AI adjust */)*0.1;//AI adjust
+                score+=(theirValue-myValue/2/*AI adjust */)*0.9;//AI adjust
             }
         }
-        List<List<Integer>> theirMoveList=b.getAllLegalMoves(team=='w'?'b':'w');
+        List<List<Integer>> theirMoveList=b.getAllLegalMoves('b');
         for (List<Integer> move:theirMoveList){
-            score-=0.004;//AI adjust
+            score-=0.02;//AI adjust
             int fromX=move.get(0);
             int fromY=move.get(1);
             int toX=move.get(2);
             int toY=move.get(3);
-            ChessPiece myPiece=board[fromX][fromY];
-            ChessPiece theirPiece=board[toX][toY];
+            ChessPiece theirPiece=board[fromX][fromY];
+            ChessPiece myPiece=board[toX][toY];
             if (theirPiece!=null&&myPiece!=null){
                 int myValue=0;
                 int theirValue=0;
@@ -119,31 +132,44 @@ public class ChessPlayer {
                     case "R": theirValue=weights[4]; break;
                     case "Q": theirValue=weights[5]; break;
                 }
-                score-=(theirValue-myValue)*0.1;//AI adjust
+                if(theirPiece.getColor()!='b')
+                score-=(theirValue-myValue/5/*AI adjust */)*0.5;//AI adjust
+                else
+                score-=(theirValue-myValue/2/*AI adjust */)*0.9;//AI adjust
             }
         }
-        score+=1*kingSafety(board,team);//AI adjust
-        //score+=-1*kingSafety(board,team=='w'?'b':'w');//AI adjust
-        score+=1*rookFiles(board,team);//AI adjust
-        //score+=-1*rookFiles(board,team=='w'?'b':'w');//AI adjust
-        score+=1*pawnProgress(board,team);
+        score+=1*kingSafety(board,'w');//AI adjust
+        score+=-1*kingSafety(board,'b');//AI adjust
+        score+=1*rookFiles(board,'w');//AI adjust
+        score+=-1*rookFiles(board,'b');//AI adjust
+        score+=1*pawnProgress(board,'w');//AI adjust
+        score+=-1*pawnProgress(board,'b');//AI adjust
         if (b.isInCheck('w')){
             score-=1;//AI adjust
         }else if(b.isInCheck('b')){
             score+=1;//AI adjust
+        }
+        if (b.isInStalemate('w')){
+            score=0;
+            System.out.println("Stalemate detected in scoring");
+        }
+        if(b.isInStalemate('b')){
+            score=0;
+            System.out.println("Stalemate detected in scoring");
+        }
+        if (b.isInsufficientMaterial()){
+            score=0;
+        }
+        if(moves>=98){
+            score=0;
         }
         if (b.isInCheckmate('w')){
             score-=10000;
         }else if(b.isInCheckmate('b')){
             score+=10000;
         }
-        if (b.isInStalemate('w')||b.isInStalemate('b')){
-            score=0;
-        }
-        if (b.isInsufficientMaterial()){
-            score=0;
-        }
-        return score;
+
+        return Math.round(score*1000.0)/1000.0;
     }
     public int pieceValues(ChessPiece[][] board, char team, int weights[]){
         int score=0;
@@ -170,6 +196,8 @@ public class ChessPlayer {
         return score;
     }
     public static double kingSafety(ChessPiece[][] board, char team){
+        ChessBoard b=new ChessBoard();
+        b.setupBoard(board);
         double safety=0;
         int kingRow=-1;
         int kingCol=-1;
@@ -190,7 +218,9 @@ public class ChessPlayer {
                     if (board[newRow][newCol]==null||board[newRow][newCol].getColor()==team){
                         safety+=0.5;//AI adjust
                     }else if (board[newRow][newCol].getColor()!=team){
-                        safety-=0.5;//AI adjust
+                        safety-=1;//AI adjust
+                    }else if(b.isSquareAttacked(newRow,newCol,team=='w'?'b':'w')){
+                        safety-=1;//AI adjust
                     }
                 }else{
                     safety+=0.6;//AI adjust
@@ -229,9 +259,11 @@ public class ChessPlayer {
                     }else{
                         progress+=(7.0-r)/10.0;//AI adjust
                     }
+                    if(r==7)
+                        progress+=2;//AI adjust
                 }
             }
         }
-        return progress*2.0;//AI adjust
+        return progress*1.0;//AI adjust
     }
 }
