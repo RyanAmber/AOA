@@ -38,7 +38,7 @@ public class ChessGame {
                     System.out.println("Stalemate! Game over!");
                     t++;
                     gameOver = true;
-                    System.exit(0);
+                    //System.exit(0);
                     continue;
                 }
 

@@ -220,7 +220,7 @@ public class ChessBoard {
     }
     public boolean isInStalemate(char player) {
         if (isInCheck(player)) return false;
-        System.out.println("Checking for stalemate for player " + player);
+        //System.out.println("Checking for stalemate for player " + player);
         return !hasLegalMoves(player);
     }
 
@@ -253,7 +253,7 @@ public class ChessBoard {
                                 enPassantTarget = enPassantSnap;
 
                                 if (legal) {
-                                    System.out.println("Legal move found: " + (char)('a' + j) + (8 - i) + " to " + (char)('a' + c) + (8 - r));
+                                    //System.out.println("Legal move found: " + (char)('a' + j) + (8 - i) + " to " + (char)('a' + c) + (8 - r));
                                     return true;
                                 }
                             }
