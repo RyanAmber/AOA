@@ -166,6 +166,9 @@ public class ChessPlayer {
         if (b.isInCheckmate('w')){
             score-=10000;
         }else if(b.isInCheckmate('b')){
+            b.printBoard();
+            System.out.println("Checkmate detected in scoring");
+            System.exit(0);
             score+=10000;
         }
 
