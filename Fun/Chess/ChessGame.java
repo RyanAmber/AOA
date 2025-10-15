@@ -16,6 +16,7 @@ public class ChessGame {
         int t = 0;
 
         for (int i = 0; i < 20; i++) {
+            System.out.println("Starting game                              " + (i + 1));
             char currentPlayer = 'w';
             boolean gameOver = false;
             ChessBoard board = new ChessBoard();
@@ -38,7 +39,6 @@ public class ChessGame {
                     System.out.println("Stalemate! Game over!");
                     t++;
                     gameOver = true;
-                    //System.exit(0);
                     continue;
                 }
 

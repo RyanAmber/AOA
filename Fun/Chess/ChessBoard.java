@@ -32,6 +32,20 @@ public class ChessBoard {
     }
     public void setupBoard(ChessPiece[][] newBoard) {
         board = newBoard;
+        kingPosition=new int[]{-1,-1,-1,-1};
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (board[i][j] instanceof King) {
+                    if (board[i][j].getColor() == 'w') {
+                        kingPosition[0] = i;
+                        kingPosition[1] = j;
+                    } else if(board[i][j].getColor() == 'b'){
+                        kingPosition[2] = i;
+                        kingPosition[3] = j;
+                    }
+                }
+            }
+        }
     }
 
     public boolean movePiece(String from, String to, char player, Scanner scanner) {
@@ -39,6 +53,7 @@ public class ChessBoard {
         int[] toIdx = parsePosition(to);
         int end1=toIdx[0];
         int end2=toIdx[1];
+        ChessPiece endPiece=board[end1][end2];
         if (fromIdx == null || toIdx == null) return false;
         
         ChessPiece piece = board[fromIdx[0]][fromIdx[1]];
@@ -130,8 +145,8 @@ public class ChessBoard {
             };
             board[toIdx[0]][toIdx[1]] = promoted;
         }
-        halfmoveClock = (piece instanceof Pawn || (board[end1][end2] != null)) ? 0 : halfmoveClock + 1;
-        //System.out.println(halfmoveClock);
+        halfmoveClock = (piece instanceof Pawn || (endPiece != null)) ? 0 : halfmoveClock + 1;
+        System.out.println(halfmoveClock);
         if (player == 'b') fullmoveNumber++;
         return true;
     }
@@ -177,6 +192,28 @@ public class ChessBoard {
                     else if (!(board[i][j] instanceof King)&&board[i][j].isValidMove(i, j, row, col, this))
                         return true;
                 }
+        return false;
+    }
+    public boolean isSquareDefended(int row, int col, char byPlayer) {
+        if (board[row][col] == null || board[row][col].getColor() != byPlayer) {
+            return false;
+        }
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (board[i][j] != null && board[i][j].getColor() == byPlayer) {
+                    if (i == row && j == col) continue; // skip the piece on the square itself
+                    // Temporarily remove the piece at (row, col) to allow isValidMove to work as intended
+                    ChessPiece original = board[row][col];
+                    board[row][col] = null;
+                    boolean defended = (board[i][j] instanceof King && Math.abs(i - row) <= 1 && Math.abs(j - col) <= 1) ||
+                        (!(board[i][j] instanceof King) && board[i][j].isValidMove(i, j, row, col, this));
+                    board[row][col] = original;
+                    if (defended) { 
+                        return true;
+                    }
+                }
+            }
+        }
         return false;
     }
 
@@ -237,7 +274,7 @@ public class ChessBoard {
                             int[] enPassantSnap = enPassantTarget == null ? null : enPassantTarget.clone();
                             if (i == r && j == c) continue;
                             if (board[i][j].isValidMove(i, j, r, c, this)) {
-                                ChessPiece target = board[r][c];
+                                //ChessPiece target = board[r][c];
                                 board[r][c] = board[i][j];
                                 board[i][j] = null;
                                 if (board[r][c] instanceof King) {
@@ -279,7 +316,7 @@ public class ChessBoard {
 
                                 // Simulate move
                                 ChessPiece movedPiece = board[i][j];
-                                ChessPiece captured = board[r][c];
+                                //ChessPiece captured = board[r][c];
                                 board[r][c] = movedPiece;
                                 board[i][j] = null;
                                 if (movedPiece instanceof King) {
