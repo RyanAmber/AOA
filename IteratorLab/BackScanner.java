@@ -67,7 +67,13 @@ public class BackScanner implements Iterable<String> {
      * Not implemented.
      */
     public void remove() {
-      throw new UnsupportedOperationException();
+      String[] newElements = new String[elements.length - 1];
+      for (int i = 0, j = 0; i < elements.length; i++) {
+        if (i != index) {
+          newElements[j++] = elements[i];
+        }
+      }
+      elements = newElements;
     }
   }
 }

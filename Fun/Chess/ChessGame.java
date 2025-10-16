@@ -1,4 +1,4 @@
-//package Fun.Chess;
+package Fun.Chess;
 import java.util.Scanner;
 
 public class ChessGame {

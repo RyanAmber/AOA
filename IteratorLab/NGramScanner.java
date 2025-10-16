@@ -30,8 +30,46 @@ public class NGramScanner implements Iterable<String> {
 
   @Override
   public Iterator<String> iterator() {
-    return null;
+    return new NGramIterator();
   }
 
+  private class NGramIterator implements Iterator<String> {
+    int index;
+
+    private NGramIterator() {
+      index = 0;
+    }
+
+    public boolean hasNext() {
+      return index + nValue - 1 < elements.length;
+    }
+
+    public String next() {
+      if (!hasNext()) {
+        throw new NoSuchElementException();
+      }
+
+      StringBuilder nGram = new StringBuilder();
+      for (int i = 0; i < nValue; i++) {
+        nGram.append(elements[index + i]);
+        if (i < nValue - 1) {
+          nGram.append(" ");
+        }
+      }
+      index++;
+      return nGram.toString();
+    }
+
+    public void remove() {
+      String[] newElements = new String[elements.length - nValue];
+      for (int i = 0, j = 0; i < elements.length; i++) {
+        if (i < index || i >= index + nValue) {
+          newElements[j++] = elements[i];
+        }
+      }
+      elements = newElements;
+      index--;
+    }
+  }
 
 }

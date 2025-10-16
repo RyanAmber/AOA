@@ -30,7 +30,43 @@ public class SkipScanner implements Iterable<String> {
    * @return An appropriate iterator object.
    */
   public Iterator<String> iterator() {
-    return null;
+    return new SkipIterator();
+  }
+
+  private class SkipIterator implements Iterator<String>{
+    int index;
+    /**
+     * 
+     * @param elements The array to iterate over.
+     * @param skip
+     */
+    private SkipIterator(){
+      index=0;
+    }
+
+    public boolean hasNext(){
+      return index<elements.length;
+    }
+    public String next(){
+      if (!hasNext()){
+        throw new NoSuchElementException();
+      }
+
+      String result=elements[index];
+      index+=skip;
+      return result;
+    }
+
+    public void remove(){
+      String[] newElements = new String[elements.length - 1];
+      for (int i = 0, j = 0; i < elements.length; i++) {
+        if (i != index) {
+          newElements[j++] = elements[i];
+        }
+      }
+      elements = newElements;
+      index--;
+    }
   }
 
 }

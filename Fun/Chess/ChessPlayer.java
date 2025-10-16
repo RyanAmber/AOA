@@ -1,4 +1,4 @@
-//package Fun.Chess;
+package Fun.Chess;
 
 import java.util.*;
 
@@ -15,6 +15,7 @@ public class ChessPlayer {
             move[0] = s.next();
             move[1] = s.next();
         }else if (type==2){
+            System.out.println("Current board score: " + score(board.copyBoard(), team, board.halfmoveClock, new double[]{0.0,1.0,3.0,3.0,5.0,9.0,0.02}));
             List<List<Integer>> allMoves = board.getAllLegalMoves(team);
             Map<List<Integer>,Double> scores=new HashMap<List<Integer>,Double>();
             for (List<Integer> m : allMoves) {
@@ -32,6 +33,7 @@ public class ChessPlayer {
                 testboard[endrow][endcol] = testboard[startrow][startcol];
                 testboard[startrow][startcol] = null;
                 double[] weights={0.0,1.0,3.0,3.0,5.0,9.0,0.02};//AI adjust
+                System.out.println("Testing move: " + (char)('a' + startcol) + (8 - startrow) + " to " + (char)('a' + endcol) + (8 - endrow));
                 scores.put(m,score(testboard,team,moves,weights));
             }
             //System.out.println("All moves listed");
@@ -72,7 +74,7 @@ public class ChessPlayer {
         ChessBoard b=new ChessBoard();
         b.setupBoard(board);
         double score=0;
-        score+=pieceValues(board,team,weights);
+        score+=pieceValues(board,team,weights)*2;//AI adjust
         List<List<Integer>> moveList=b.getAllLegalMoves('w');
         for (List<Integer> move:moveList){
             score+=weights[6];
@@ -94,17 +96,18 @@ public class ChessPlayer {
                     case "Q": myValue=weights[5]; break;
                 }
                 switch (theirPiece.toString()){
-                    case "K": theirValue=0; break;
-                    case "P": theirValue=weights[1]; break;
-                    case "N": theirValue=weights[2]; break;
-                    case "B": theirValue=weights[3]; break;
-                    case "R": theirValue=weights[4]; break;
-                    case "Q": theirValue=weights[5]; break;
+                    case "k": theirValue=0; break;
+                    case "p": theirValue=weights[1]; break;
+                    case "n": theirValue=weights[2]; break;
+                    case "b": theirValue=weights[3]; break;
+                    case "r": theirValue=weights[4]; break;
+                    case "q": theirValue=weights[5]; break;
                 }
                 if(theirPiece.getColor()!='w')
                 score+=(theirValue/*AI adjust */)*0.9;//AI adjust
                 else
                 score+=(theirValue/*AI adjust */)*0.5;//AI adjust
+                score+=myValue-myValue;
             }
         }
         moveList=b.getAllLegalMoves('b');
@@ -120,12 +123,12 @@ public class ChessPlayer {
                 double myValue=0;
                 double theirValue=0;
                 switch (myPiece.toString()){
-                    case "K": myValue=0; break;
-                    case "P": myValue=weights[1]; break;
-                    case "N": myValue=weights[2]; break;
-                    case "B": myValue=weights[3]; break;
-                    case "R": myValue=weights[4]; break;
-                    case "Q": myValue=weights[5]; break;
+                    case "k": myValue=0; break;
+                    case "p": myValue=weights[1]; break;
+                    case "n": myValue=weights[2]; break;
+                    case "b": myValue=weights[3]; break;
+                    case "r": myValue=weights[4]; break;
+                    case "q": myValue=weights[5]; break;
                 }
                 switch (theirPiece.toString()){
                     case "K": theirValue=0; break;
@@ -139,14 +142,15 @@ public class ChessPlayer {
                 score-=(theirValue/*AI adjust */)*0.9;//AI adjust
                 else
                 score-=(theirValue/*AI adjust */)*0.5;//AI adjust
+                score+=myValue-myValue;
             }
         }
-        score+=1*kingSafety(board,'w');//AI adjust
-        score+=-1*kingSafety(board,'b');//AI adjust
-        score+=1*rookFiles(board,'w');//AI adjust
-        score+=-1*rookFiles(board,'b');//AI adjust
-        score+=1*pawnProgress(board,'w');//AI adjust
-        score+=-1*pawnProgress(board,'b');//AI adjust
+        score+=0.3*kingSafety(board,'w');//AI adjust
+        score+=-0.3*kingSafety(board,'b');//AI adjust
+        score+=0.5*rookFiles(board,'w');//AI adjust
+        score+=-0.5*rookFiles(board,'b');//AI adjust
+        score+=1.2*pawnProgress(board,'w');//AI adjust
+        score+=-1.2*pawnProgress(board,'b');//AI adjust
         if (b.isInCheck('w')){
             score-=0.3;//AI adjust
         }else if(b.isInCheck('b')){
@@ -154,11 +158,9 @@ public class ChessPlayer {
         }
         if (b.isInStalemate('w')){
             score=0;
-            System.out.println("Stalemate detected in scoring");
         }
         if(b.isInStalemate('b')){
             score=0;
-            System.out.println("Stalemate detected in scoring");
         }
         if (b.isInsufficientMaterial()){
             score=0;
@@ -167,12 +169,59 @@ public class ChessPlayer {
             score=0;
         }
         if (b.isInCheckmate('w')){
-            score-=10000;
+            score-=100000;
         }else if(b.isInCheckmate('b')){
-            score+=10000;
+            score+=100000;
+        }
+        if(b.onlyQueen('w')){
+            score+=100*queenSolve(board,'w');
+        }else if(b.onlyQueen('b')){
+            score-=100*queenSolve(board,'b');
         }
 
         return Math.round(score*1000.0)/1000.0;
+    }
+    public int queenSolve(ChessPiece[][] board, char team){
+        int qX=-1;
+        int qY=-1;
+        int kX=-1;
+        int kY=-1;
+        int oX=-1;
+        int oY=-1;
+        int score=0;
+        for (int r=0;r<8;r++){
+            for (int c=0;c<8;c++){
+                if (board[r][c]!=null){
+                    if (board[r][c].toString().equals("Q")||board[r][c].toString().equals("q")&&board[r][c].getColor()==team){
+                        qX=r;
+                        qY=c;
+                    }else if (board[r][c].toString().equals("K")||board[r][c].toString().equals("k")&&board[r][c].getColor()==team){
+                        kX=r;
+                        kY=c;
+                    }else if (board[r][c].toString().equals("K")||board[r][c].toString().equals("k")&&board[r][c].getColor()!=team){
+                        oX=r;
+                        oY=c;
+                    }
+                }
+            }
+        }
+        int distY=oY-qY;
+        int distX=qX-oX;
+        if(distY==1&&distX==2){
+            score+=5;
+            System.out.println("CLOSE");
+        }
+        if(qY==1&&qX==4&&oY==0&&oX>6){
+            score+=10;
+            System.out.println("CORNER");
+        }
+        score-=Math.abs(kY-qY);
+        score-=Math.abs(kX-qX);
+        if (Math.abs(oY-qY)<=1&&Math.abs(oX-qX)<=1){
+            score-=10;
+            System.out.println("DANGER");
+        }
+        return score;
     }
     public double pieceValues(ChessPiece[][] board, char team, double weights[]){
         double score=0;
@@ -182,10 +231,15 @@ public class ChessPlayer {
                     double val=0;
                     switch (board[r][c].toString()){
                         case "P": val=weights[1]; break;
+                        case "p": val=weights[1]; break;
                         case "N": val=weights[2]; break;
+                        case "n": val=weights[2]; break;
                         case "B": val=weights[3]; break;
+                        case "b": val=weights[3]; break;
                         case "R": val=weights[4]; break;
+                        case "r": val=weights[4]; break;
                         case "Q": val=weights[5]; break;
+                        case "q": val=weights[5]; break;
                     }
                     if (board[r][c].getColor()=='w'){
                         score+=val;

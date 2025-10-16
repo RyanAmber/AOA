@@ -1,4 +1,4 @@
-//package Fun.Chess;
+package Fun.Chess;
 
 import java.util.*;
 
@@ -12,8 +12,13 @@ public class ChessBoard {
     int halfmoveClock = 0;
     int fullmoveNumber = 1;
 
-    public ChessBoard() { setupPieces(); }
-
+    public ChessBoard() { setupQueenmate(); }
+    private void setupQueenmate(){
+        board = new ChessPiece[8][8];
+        board[0][4] = new King('b');
+        board[7][4] = new King('w');
+        board[7][3] = new Queen('w');
+    }
     private void setupPieces() {
         // Pawns
         for (int i = 0; i < 8; i++) {
@@ -351,6 +356,21 @@ public class ChessBoard {
         int row = 8 - (pos.charAt(1) - '0');
         if (col < 0 || col > 7 || row < 0 || row > 7) return null;
         return new int[]{row, col};
+    }
+    public boolean onlyQueen(char team){
+        int count=0;
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (board[i][j] != null && board[i][j].getColor() == team) {
+                    if (board[i][j] instanceof Queen) {
+                        count++;
+                    } else if (!(board[i][j] instanceof King)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return count == 1;
     }
 
     public void printBoard() {
