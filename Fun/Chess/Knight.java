@@ -14,5 +14,5 @@ public class Knight extends ChessPiece {
     }
 
     @Override
-    public String toString() { return color == 'w' ? "N" : "n"; }
+    public String toString() { return color == 'w' ? "\u2654" : "&#9822"; }
 }

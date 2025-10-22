@@ -32,7 +32,7 @@ public class ChessPlayer {
                 }
                 testboard[endrow][endcol] = testboard[startrow][startcol];
                 testboard[startrow][startcol] = null;
-                double[] weights={0.0,1.0,3.0,3.0,5.0,9.0,0.02};//AI adjust
+                double[] weights={0.0,1.0,3.0,3.0,5.0,9.0,0.04};//AI adjust
                 System.out.println("Testing move: " + (char)('a' + startcol) + (8 - startrow) + " to " + (char)('a' + endcol) + (8 - endrow));
                 scores.put(m,score(testboard,team,moves,weights));
             }
@@ -46,7 +46,7 @@ public class ChessPlayer {
                 int toCol = entry.getKey().get(3);
                 String fromNotation = "" + (char)('a' + fromCol) + (8 - fromRow);
                 String toNotation = "" + (char)('a' + toCol) + (8 - toRow);
-                System.out.println(minimaxscore + " " + entry.getValue() + " " + fromNotation + " " + toNotation);
+                //System.out.println(minimaxscore + " " + entry.getValue() + " " + fromNotation + " " + toNotation);
                 if (team=='w'?entry.getValue()>minimaxscore:entry.getValue()<minimaxscore){
                     minimaxscore=entry.getValue();
                     bestMoves.clear();
@@ -82,6 +82,9 @@ public class ChessPlayer {
             int fromY=move.get(1);
             int toX=move.get(2);
             int toY=move.get(3);
+            if(toX>=3&&toX<=4&&toY>=3&&toY<=4){
+                score+=weights[6];
+            }
             ChessPiece myPiece=board[fromX][fromY];
             ChessPiece theirPiece=board[toX][toY];
             if (theirPiece!=null&&myPiece!=null){
@@ -117,6 +120,9 @@ public class ChessPlayer {
             int fromY=move.get(1);
             int toX=move.get(2);
             int toY=move.get(3);
+            if(toX>=3&&toX<=4&&toY>=3&&toY<=4){
+                score-=weights[6];
+            }
             ChessPiece theirPiece=board[fromX][fromY];
             ChessPiece myPiece=board[toX][toY];
             if (theirPiece!=null&&myPiece!=null){
@@ -146,11 +152,11 @@ public class ChessPlayer {
             }
         }
         score+=0.3*kingSafety(board,'w');//AI adjust
-        score+=-0.3*kingSafety(board,'b');//AI adjust
+        score-=0.3*kingSafety(board,'b');//AI adjust
         score+=0.5*rookFiles(board,'w');//AI adjust
-        score+=-0.5*rookFiles(board,'b');//AI adjust
-        score+=1.2*pawnProgress(board,'w');//AI adjust
-        score+=-1.2*pawnProgress(board,'b');//AI adjust
+        score-=0.5*rookFiles(board,'b');//AI adjust
+        score+=0.9*pawnProgress(board,'w');//AI adjust
+        score-=0.9*pawnProgress(board,'b');//AI adjust
         if (b.isInCheck('w')){
             score-=0.3;//AI adjust
         }else if(b.isInCheck('b')){
@@ -174,14 +180,30 @@ public class ChessPlayer {
             score+=100000;
         }
         if(b.onlyQueen('w')){
+            board=b.getBoard();
             score+=100*queenSolve(board,'w');
+            if(b.isInStalemate('b')){
+                score-=500;
+            }
         }else if(b.onlyQueen('b')){
+            board=b.getBoard();
             score-=100*queenSolve(board,'b');
+            if(b.isInStalemate('w')){
+                score+=500;
+            }
         }
-
+        if(b.onlyPawn('w')){
+            board=b.getBoard();
+            score+=100*pawnSolve(board,'w');
+        }
+        if(b.onlyPawn('b')){
+            board=b.getBoard();
+            score-=100*pawnSolve(board,'b');
+        }
         return Math.round(score*1000.0)/1000.0;
     }
     public int queenSolve(ChessPiece[][] board, char team){
+        
         int qX=-1;
         int qY=-1;
         int kX=-1;
@@ -192,34 +214,72 @@ public class ChessPlayer {
         for (int r=0;r<8;r++){
             for (int c=0;c<8;c++){
                 if (board[r][c]!=null){
-                    if (board[r][c].toString().equals("Q")||board[r][c].toString().equals("q")&&board[r][c].getColor()==team){
-                        qX=r;
-                        qY=c;
-                    }else if (board[r][c].toString().equals("K")||board[r][c].toString().equals("k")&&board[r][c].getColor()==team){
-                        kX=r;
-                        kY=c;
-                    }else if (board[r][c].toString().equals("K")||board[r][c].toString().equals("k")&&board[r][c].getColor()!=team){
-                        oX=r;
-                        oY=c;
+                    if ((board[r][c].toString().equals("Q")||board[r][c].toString().equals("q"))&&board[r][c].getColor()==team){
+                        qY=r;
+                        qX=c;
+                    }
+                    if ((board[r][c].toString().equals("K")||board[r][c].toString().equals("k"))&&board[r][c].getColor()==team){
+                        kY=r;
+                        kX=c;
+                    }
+                    if ((board[r][c].toString().equals("K")||board[r][c].toString().equals("k"))&&board[r][c].getColor()!=team){
+                        oY=r;
+                        oX=c;
                     }
                 }
             }
         }
-        int distY=oY-qY;
-        int distX=qX-oX;
+        int distY=qY-oY;
+        int distX=oX-qX;
         if(distY==1&&distX==2){
             score+=5;
-            System.out.println("CLOSE");
         }
         if(qY==1&&qX==4&&oY==0&&oX>6){
             score+=10;
-            System.out.println("CORNER");
+            score-=Math.abs(2-kY);
+            score-=Math.abs(6-kX);
         }
-        score-=Math.abs(kY-qY);
-        score-=Math.abs(kX-qX);
+        score-=Math.abs(oY-qY);
+        score-=Math.abs(oX-qX);
         if (Math.abs(oY-qY)<=1&&Math.abs(oX-qX)<=1){
-            score-=10;
-            System.out.println("DANGER");
+            score-=13;
+        }
+        return score;
+    }
+    public double pawnSolve(ChessPiece[][] board, char team){
+        int pX=-1;
+        int pY=-1;
+        int kX=-1;
+        int kY=-1;
+        double score=0;
+        for (int r=0;r<8;r++){
+            for (int c=0;c<8;c++){
+                if (board[r][c]!=null){
+                    if ((board[r][c].toString().equals("P")||board[r][c].toString().equals("p"))&&board[r][c].getColor()==team){
+                        pY=r;
+                        pX=c;
+                    }
+                    if ((board[r][c].toString().equals("K")||board[r][c].toString().equals("k"))&&board[r][c].getColor()==team){
+                        kY=r;
+                        kX=c;
+                    }
+                }
+            }
+        }
+        if (team=='b'){
+            score+=pY*2;
+            score-=Math.abs(kX - pX)*2.5;
+            score-=Math.abs(kY - pY)*2.5;
+            if (pY==7){
+                score+=20;
+            }
+        }else{
+            score+=(7 - pY)*2;
+            score-=Math.abs(kX - pX)*2.5;
+            score-=Math.abs(kY - pY)*2.5;
+            if (pY==0){
+                score+=20;
+            }
         }
         return score;
     }
@@ -259,7 +319,7 @@ public class ChessPlayer {
         int kingCol=-1;
         for (int r=0;r<8;r++){
             for (int c=0;c<8;c++){
-                if (board[r][c]!=null&&board[r][c].toString().equals("K")&&board[r][c].getColor()==team){
+                if (board[r][c]!=null&&(board[r][c].toString().equals("K")||board[r][c].toString().equals("k"))&&board[r][c].getColor()==team){
                     kingRow=r;
                     kingCol=c;
                 }
@@ -309,14 +369,15 @@ public class ChessPlayer {
         double progress=0;
         for (int c=0;c<8;c++){
             for (int r=0;r<8;r++){
-                if (board[r][c]!=null&&board[r][c].toString().equals("P")&&board[r][c].getColor()==team){
-                    if (team=='w'){
+                if (board[r][c]!=null&&(board[r][c].toString().equals("P")||board[r][c].toString().equals("p"))&&board[r][c].getColor()==team){
+                    if (team=='b'){
                         progress+=r/10.0;//AI adjust
                     }else{
                         progress+=(7.0-r)/10.0;//AI adjust
                     }
-                    if(r==7)
+                    if(r==7||r==0){
                         progress+=2;//AI adjust
+                    }
                 }
             }
         }

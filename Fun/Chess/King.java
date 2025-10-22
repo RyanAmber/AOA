@@ -38,5 +38,5 @@ public class King extends ChessPiece {
     }
 
     @Override
-    public String toString() { return color == 'w' ? "K" : "k"; }
+    public String toString() { return color == 'w' ? "\u2654" : "\u265A"; }
 }

@@ -15,8 +15,8 @@ public class ChessGame {
         int w2 = 0;
         int t = 0;
 
-        for (int i = 0; i < 20; i++) {
-            System.out.println("Starting game                              " + (i + 1));
+        for (int i = 0; i < 100; i++) {
+            System.out.println("Starting game                                                 " + (i + 1));
             char currentPlayer = 'w';
             boolean gameOver = false;
             ChessBoard board = new ChessBoard();
@@ -45,7 +45,7 @@ public class ChessGame {
                 if (board.isFiftyMoveRule()) {
                     System.out.println("Draw by 50-move rule! Game over!");
                     t++;
-                    gameOver = true;
+                    gameOver = true;                 
                     continue;
                 }
 

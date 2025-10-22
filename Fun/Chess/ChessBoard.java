@@ -12,12 +12,14 @@ public class ChessBoard {
     int halfmoveClock = 0;
     int fullmoveNumber = 1;
 
-    public ChessBoard() { setupQueenmate(); }
-    private void setupQueenmate(){
-        board = new ChessPiece[8][8];
-        board[0][4] = new King('b');
+    public ChessBoard() { setupPieces(); }
+    private void setupTestBoard() {
+        // Example test setup
         board[7][4] = new King('w');
-        board[7][3] = new Queen('w');
+        board[0][4] = new King('b');
+        board[6][4] = new Pawn('w');
+
+        kingPosition = new int[]{7, 4, 0, 4};
     }
     private void setupPieces() {
         // Pawns
@@ -76,6 +78,9 @@ public class ChessBoard {
 
         // Handle special moves
         boolean isCastling = false, isPromotion = false, isEnPassant = false;
+        if(isCastling && isPromotion && isEnPassant){
+            isCastling=false;
+        }
         // Castling
         if (piece instanceof King && Math.abs(fromIdx[1] - toIdx[1]) == 2) {
             isCastling = true;
@@ -372,6 +377,21 @@ public class ChessBoard {
         }
         return count == 1;
     }
+    public boolean onlyPawn(char team){
+        int count=0;
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (board[i][j] != null && board[i][j].getColor() == team) {
+                    if (board[i][j] instanceof Pawn) {
+                        count++;
+                    } else if (!(board[i][j] instanceof King)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return count >= 1;
+    }
 
     public void printBoard() {
         System.out.println("  a b c d e f g h");
@@ -384,5 +404,8 @@ public class ChessBoard {
             System.out.println();
         }
         System.out.println("  a b c d e f g h");
+    }
+    public ChessPiece[][] getBoard() {
+        return board;
     }
 }
