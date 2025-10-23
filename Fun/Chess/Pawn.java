@@ -29,5 +29,5 @@ public class Pawn extends ChessPiece {
     }
 
     @Override
-    public String toString() { return color == 'w' ? "P" : "p"; }
+    public String toString() { return color == 'b' ? "\u2659" : "\u265F"; }
 }
