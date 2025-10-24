@@ -4,3 +4,9 @@ public class Test2 {
 
     }
 }
+/*
+ * Determine if there is a cycle
+ * return first repeated node
+ * 
+ * Reverse a linked list
+ */

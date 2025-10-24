@@ -24,4 +24,6 @@ public abstract class ChessPiece implements Cloneable {
 
     @Override
     public abstract String toString();
+
+    public abstract String getType();
 }

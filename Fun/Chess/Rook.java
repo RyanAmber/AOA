@@ -19,4 +19,6 @@ public class Rook extends ChessPiece {
 
     @Override
     public String toString() { return color == 'b' ? "\u2656" : "\u265C"; }
+    @Override
+    public String getType() { return "R"; }
 }
