@@ -17,7 +17,10 @@ public class ChessBoard {
         // Example test setup
         board[7][4] = new King('w');
         board[0][4] = new King('b');
-        board[6][4] = new Pawn('w');
+        board[5][5] = new Bishop('w');
+        board[1][1] =new Rook('b');
+        board[2][1]=new Pawn('b');
+        board[1][2]=new Pawn('b');
 
         kingPosition = new int[]{7, 4, 0, 4};
     }

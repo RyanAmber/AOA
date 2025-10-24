@@ -75,92 +75,43 @@ public class ChessPlayer {
         b.setupBoard(board);
         double score=0;
         score+=pieceValues(board,team,weights)*2;//AI adjust
-        List<List<Integer>> moveList=b.getAllLegalMoves('w');
-        for (List<Integer> move:moveList){
-            score+=weights[6];
-            int fromX=move.get(0);
-            int fromY=move.get(1);
-            int toX=move.get(2);
-            int toY=move.get(3);
-            if(toX>=3&&toX<=4&&toY>=3&&toY<=4){
-                score+=weights[6];
-            }
-            ChessPiece myPiece=board[fromX][fromY];
-            ChessPiece theirPiece=board[toX][toY];
-            if (theirPiece!=null&&myPiece!=null){
-                double myValue=0;
-                double theirValue=0;
-                switch (myPiece.getType()){
-                    case "K": myValue=0; break;
-                    case "P": myValue=weights[1]; break;
-                    case "N": myValue=weights[2]; break;
-                    case "B": myValue=weights[3]; break;
-                    case "R": myValue=weights[4]; break;
-                    case "Q": myValue=weights[5]; break;
+        double wmodifier=0.0;
+        double bmodifier=0.0;
+        for (int i=0;i<8;i++){
+            for (int j=0;j<8;j++){
+                if (board[i][j]!=null){
+                    if (board[i][j].getColor()=='w'){
+                        ChessPiece temp=board[i][j];
+                        if (b.isSquareAttacked(i,j,'b')){
+                            switch (temp.getType()){
+                                case "P": wmodifier-=1; break;//AI adjust
+                                case "N": wmodifier-=3; break;//AI adjust
+                                case "B": wmodifier-=3; break;//AI adjust
+                                case "R": wmodifier-=5; break;//AI adjust
+                                case "Q": wmodifier-=9; break;//AI adjust
+                            }
+                        }
+                    }else if(board[i][j].getColor()=='b'){
+                        ChessPiece temp=board[i][j];
+                        if (b.isSquareAttacked(i,j,'w')){
+                            switch (temp.getType()){
+                                case "P": bmodifier+=1; break;//AI adjust
+                                case "N": bmodifier+=3; break;//AI adjust
+                                case "B": bmodifier+=3; break;//AI adjust
+                                case "R": bmodifier+=5; break;//AI adjust
+                                case "Q": bmodifier+=9; break;//AI adjust
+                            }
+                        }
+                    }
                 }
-                switch (theirPiece.getType()){
-                    case "K": theirValue=0; break;
-                    case "P": theirValue=weights[1]; break;
-                    case "N": theirValue=weights[2]; break;
-                    case "B": theirValue=weights[3]; break;
-                    case "R": theirValue=weights[4]; break;
-                    case "Q": theirValue=weights[5]; break;
-                }
-                System.out.println("Evaluating move from " + (char)('a' + fromY) + (8 - fromX) + " to " + (char)('a' + toY) + (8 - toX));
-                System.out.println("My piece: " + myPiece.toString() + " Value: " + myValue);
-                System.out.println("Their piece: " + theirPiece.toString() + " Value: " + theirValue);
-                if(theirPiece.getColor()!='w'){
-                    score+=(theirValue/*AI adjust */)*0.9;//AI adjust
-                    System.out.println("Captured piece value: " + theirValue);
-                }else{
-                    score+=(theirValue/*AI adjust */)*0.5;//AI adjust
-                    System.out.println("What happened?");
-                    System.out.println("Captured piece value: " + theirValue);
-                }
-                score+=myValue-myValue;
             }
         }
-        moveList=b.getAllLegalMoves('b');
-        for (List<Integer> move:moveList){
-            score-=weights[6];
-            int fromX=move.get(0);
-            int fromY=move.get(1);
-            int toX=move.get(2);
-            int toY=move.get(3);
-            if(toX>=3&&toX<=4&&toY>=3&&toY<=4){
-                score-=weights[6];
-            }
-            ChessPiece theirPiece=board[fromX][fromY];
-            ChessPiece myPiece=board[toX][toY];
-            if (theirPiece!=null&&myPiece!=null){
-                double myValue=0;
-                double theirValue=0;
-                switch (myPiece.getType()){
-                    case "K": myValue=0; break;
-                    case "P": myValue=weights[1]; break;
-                    case "N": myValue=weights[2]; break;
-                    case "B": myValue=weights[3]; break;
-                    case "R": myValue=weights[4]; break;
-                    case "Q": myValue=weights[5]; break;
-                }
-                switch (theirPiece.getType()){
-                    case "K": theirValue=0; break;
-                    case "P": theirValue=weights[1]; break;
-                    case "N": theirValue=weights[2]; break;
-                    case "B": theirValue=weights[3]; break;
-                    case "R": theirValue=weights[4]; break;
-                    case "Q": theirValue=weights[5]; break;
-                }
-                if(theirPiece.getColor()!='b'){
-                    score+=(theirValue/*AI adjust */)*0.9;//AI adjust
-                    System.out.println("Captured piece value: " + theirValue);
-                }else{
-                    score+=(theirValue/*AI adjust */)*0.5;//AI adjust
-                    System.out.println("What happened?");
-                    System.out.println("Captured piece value: " + theirValue);
-                }
-                score+=myValue-myValue;
-            }
+        if(team=='w'){
+            score+=wmodifier;
+            score+=bmodifier*0.1;
+        }else{
+            score+=bmodifier;
+            score+=wmodifier*0.1;
         }
         score+=0.3*kingSafety(board,'w');//AI adjust
         score-=0.3*kingSafety(board,'b');//AI adjust
