@@ -21,4 +21,6 @@ public class Bishop extends ChessPiece {
     public String toString() { return color == 'b' ? "\u2657" : "\u265D"; }
     @Override
     public String getType() { return "B"; }
+    @Override
+    public int getValue() { return 3; }
 }

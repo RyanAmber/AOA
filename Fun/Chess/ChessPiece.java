@@ -26,4 +26,5 @@ public abstract class ChessPiece implements Cloneable {
     public abstract String toString();
 
     public abstract String getType();
+    public abstract int getValue();
 }

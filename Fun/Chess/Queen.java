@@ -19,4 +19,6 @@ public class Queen extends ChessPiece {
     public String toString() { return color == 'b' ? "\u2655" : "\u265B"; }
     @Override
     public String getType() { return "Q"; }
+    @Override
+    public int getValue() { return 9; }
 }

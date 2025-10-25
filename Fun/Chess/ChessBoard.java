@@ -207,6 +207,19 @@ public class ChessBoard {
                 }
         return false;
     }
+    public int minSquareAttacked(int row, int col, char byPlayer) {
+        int min=Integer.MAX_VALUE;
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 8; j++)
+                if (board[i][j] != null && board[i][j].getColor() == byPlayer){
+                    if((board[i][j] instanceof King && Math.abs(i - row) <= 1 && Math.abs(j - col) <= 1)){
+                        min=Math.min(min, board[i][j].getValue());
+                    }
+                    else if (!(board[i][j] instanceof King)&&board[i][j].isValidMove(i, j, row, col, this))
+                        min=Math.min(min, board[i][j].getValue());
+                }
+        return min;
+    }
     public boolean isSquareDefended(int row, int col, char byPlayer) {
         if (board[row][col] == null || board[row][col].getColor() != byPlayer) {
             return false;

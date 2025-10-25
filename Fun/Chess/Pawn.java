@@ -32,4 +32,6 @@ public class Pawn extends ChessPiece {
     public String toString() { return color == 'b' ? "\u2659" : "\u265F"; }
     @Override
     public String getType() { return "P"; }
+    @Override
+    public int getValue() { return 1; }
 }

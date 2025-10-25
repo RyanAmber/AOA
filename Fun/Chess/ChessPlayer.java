@@ -32,7 +32,7 @@ public class ChessPlayer {
                 }
                 testboard[endrow][endcol] = testboard[startrow][startcol];
                 testboard[startrow][startcol] = null;
-                double[] weights={0.0,1.0,3.0,3.0,5.0,9.0,0.04};//AI adjust
+                double[] weights={0.0,1.0,3.0,3.0,5.0,9.0,0.02};//AI adjust
                 System.out.println("Testing move: " + (char)('a' + startcol) + (8 - startrow) + " to " + (char)('a' + endcol) + (8 - endrow));
                 scores.put(m,score(testboard,team,moves,weights));
             }
@@ -46,7 +46,7 @@ public class ChessPlayer {
                 int toCol = entry.getKey().get(3);
                 String fromNotation = "" + (char)('a' + fromCol) + (8 - fromRow);
                 String toNotation = "" + (char)('a' + toCol) + (8 - toRow);
-                //System.out.println(minimaxscore + " " + entry.getValue() + " " + fromNotation + " " + toNotation);
+                System.out.println(minimaxscore + " " + entry.getValue() + " " + fromNotation + " " + toNotation);
                 if (team=='w'?entry.getValue()>minimaxscore:entry.getValue()<minimaxscore){
                     minimaxscore=entry.getValue();
                     bestMoves.clear();
@@ -82,24 +82,42 @@ public class ChessPlayer {
                 if (board[i][j]!=null){
                     if (board[i][j].getColor()=='w'){
                         ChessPiece temp=board[i][j];
-                        if (b.isSquareAttacked(i,j,'b')){
+                        int atkval=b.minSquareAttacked(i,j,'b');
+                        if(atkval>0&&b.isSquareDefended(i,j,'w')){
                             switch (temp.getType()){
-                                case "P": wmodifier-=1; break;//AI adjust
-                                case "N": wmodifier-=3; break;//AI adjust
-                                case "B": wmodifier-=3; break;//AI adjust
-                                case "R": wmodifier-=5; break;//AI adjust
-                                case "Q": wmodifier-=9; break;//AI adjust
+                                case "P": wmodifier-=Math.max(0,1.0-atkval); break;
+                                case "N": wmodifier-=Math.max(0,3.0-atkval); break;
+                                case "B": wmodifier-=Math.max(0,3.0-atkval); break;
+                                case "R": wmodifier-=Math.max(0,5.0-atkval); break;
+                                case "Q": wmodifier-=Math.max(0,9.0-atkval); break;
+                            }
+                        }else if(atkval>0){
+                            switch (temp.getType()){
+                                case "P": wmodifier-=1.0; break;//AI adjust
+                                case "N": wmodifier-=3.0; break;//AI adjust
+                                case "B": wmodifier-=3.0; break;//AI adjust
+                                case "R": wmodifier-=5.0; break;//AI adjust
+                                case "Q": wmodifier-=9.0; break;//AI adjust
                             }
                         }
                     }else if(board[i][j].getColor()=='b'){
                         ChessPiece temp=board[i][j];
-                        if (b.isSquareAttacked(i,j,'w')){
+                        int atkval=b.minSquareAttacked(i,j,'w');
+                        if(atkval>0&&b.isSquareDefended(i,j,'b')){
                             switch (temp.getType()){
-                                case "P": bmodifier+=1; break;//AI adjust
-                                case "N": bmodifier+=3; break;//AI adjust
-                                case "B": bmodifier+=3; break;//AI adjust
-                                case "R": bmodifier+=5; break;//AI adjust
-                                case "Q": bmodifier+=9; break;//AI adjust
+                                case "P": bmodifier+=Math.max(0,1.0-atkval); break;
+                                case "N": bmodifier+=Math.max(0,3.0-atkval); break;
+                                case "B": bmodifier+=Math.max(0,3.0-atkval); break;
+                                case "R": bmodifier+=Math.max(0,5.0-atkval); break;
+                                case "Q": bmodifier+=Math.max(0,9.0-atkval); break;
+                            }
+                        }else if(atkval>0){
+                            switch (temp.getType()){
+                                case "P": bmodifier+=1.0; break;//AI adjust
+                                case "N": bmodifier+=3.0; break;//AI adjust
+                                case "B": bmodifier+=3.0; break;//AI adjust
+                                case "R": bmodifier+=5.0; break;//AI adjust
+                                case "Q": bmodifier+=9.0; break;//AI adjust
                             }
                         }
                     }
@@ -119,6 +137,18 @@ public class ChessPlayer {
         score-=0.5*rookFiles(board,'b');//AI adjust
         score+=0.9*pawnProgress(board,'w');//AI adjust
         score-=0.9*pawnProgress(board,'b');//AI adjust
+        List<List<Integer>> allMoves = b.getAllLegalMoves('w');
+        for (List<Integer> move : allMoves) {
+            score+=weights[6];
+            if(move.size()>0)
+            move.get(0);
+        }
+        allMoves = b.getAllLegalMoves('b');
+        for (List<Integer> move : allMoves) {
+            score-=weights[6];
+            if(move.size()>0)
+            move.get(0);
+        }
         if (b.isInCheck('w')){
             score-=0.3;//AI adjust
         }else if(b.isInCheck('b')){
@@ -338,6 +368,6 @@ public class ChessPlayer {
                 }
             }
         }
-        return progress*1.5;//AI adjust
+        return progress*0.9;//AI adjust
     }
 }

@@ -41,4 +41,6 @@ public class King extends ChessPiece {
     public String toString() { return color == 'b' ? "\u2654" : "\u265A"; }
     @Override
     public String getType() { return "K"; }
+    @Override
+    public int getValue() { return 10000; }
 }
