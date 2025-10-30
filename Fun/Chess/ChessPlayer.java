@@ -58,7 +58,7 @@ public class ChessPlayer {
             List<Integer> moveIndices = bestMoves.get(new Random().nextInt(bestMoves.size()));
             move[0] = "" + (char)('a' + moveIndices.get(1)) + (8 - moveIndices.get(0));
             move[1] = "" + (char)('a' + moveIndices.get(3)) + (8 - moveIndices.get(2));
-        }else{
+        }else if(type==3){
             List<List<Integer>> allMoves = board.getAllLegalMoves(team);
             if (allMoves.size() > 0) {
                 Random rand = new Random();
@@ -66,6 +66,8 @@ public class ChessPlayer {
                 move[0] = "" + (char)('a' + moveIndices.get(1)) + (8 - moveIndices.get(0));
                 move[1] = "" + (char)('a' + moveIndices.get(3)) + (8 - moveIndices.get(2));
             }
+        }else if(type==4){
+            
         }
         System.out.println("Chosen move: " + move[0] + " to " + move[1]);
         return move;
@@ -81,43 +83,52 @@ public class ChessPlayer {
             for (int j=0;j<8;j++){
                 if (board[i][j]!=null){
                     if (board[i][j].getColor()=='w'){
-                        ChessPiece temp=board[i][j];
-                        int atkval=b.minSquareAttacked(i,j,'b');
-                        if(atkval>0&&b.isSquareDefended(i,j,'w')){
-                            switch (temp.getType()){
-                                case "P": wmodifier-=Math.max(0,1.0-atkval); break;
-                                case "N": wmodifier-=Math.max(0,3.0-atkval); break;
-                                case "B": wmodifier-=Math.max(0,3.0-atkval); break;
-                                case "R": wmodifier-=Math.max(0,5.0-atkval); break;
-                                case "Q": wmodifier-=Math.max(0,9.0-atkval); break;
-                            }
-                        }else if(atkval>0){
-                            switch (temp.getType()){
-                                case "P": wmodifier-=1.0; break;//AI adjust
-                                case "N": wmodifier-=3.0; break;//AI adjust
-                                case "B": wmodifier-=3.0; break;//AI adjust
-                                case "R": wmodifier-=5.0; break;//AI adjust
-                                case "Q": wmodifier-=9.0; break;//AI adjust
+                        if(b.isSquareAttacked(i, j, 'b')){
+                            ChessPiece temp=board[i][j];
+                            int atkval=b.minSquareAttacked(i,j,'b');
+                            int numatkers=b.numSquareAttacked(i,j,'b');
+                            int numdefenders=b.numSquareDefended(i,j,'w');
+                            if(atkval>0&&(numdefenders>=numatkers)){
+                                switch (temp.getType()){
+                                    case "P": wmodifier-=Math.max(0,1.0-atkval); break;
+                                    case "N": wmodifier-=Math.max(0,3.0-atkval); break;
+                                    case "B": wmodifier-=Math.max(0,3.0-atkval); break;
+                                    case "R": wmodifier-=Math.max(0,5.0-atkval); break;
+                                    case "Q": wmodifier-=Math.max(0,9.0-atkval); break;
+                                }
+                                if(temp.getType().equals("Q")){
+                                    System.out.println("White queen attacked at " + i + "," + j + " with attack value " + atkval + ", defenders: " + numdefenders + ", attackers: " + numatkers);
+                                }
+                            }else if(atkval>0){
+                                switch (temp.getType()){
+                                    case "P": wmodifier-=1.0; break;//AI adjust
+                                    case "N": wmodifier-=3.0; break;//AI adjust
+                                    case "B": wmodifier-=3.0; break;//AI adjust
+                                    case "R": wmodifier-=5.0; break;//AI adjust
+                                    case "Q": wmodifier-=9.0; break;//AI adjust
+                                }
                             }
                         }
                     }else if(board[i][j].getColor()=='b'){
                         ChessPiece temp=board[i][j];
-                        int atkval=b.minSquareAttacked(i,j,'w');
-                        if(atkval>0&&b.isSquareDefended(i,j,'b')){
-                            switch (temp.getType()){
-                                case "P": bmodifier+=Math.max(0,1.0-atkval); break;
-                                case "N": bmodifier+=Math.max(0,3.0-atkval); break;
-                                case "B": bmodifier+=Math.max(0,3.0-atkval); break;
-                                case "R": bmodifier+=Math.max(0,5.0-atkval); break;
-                                case "Q": bmodifier+=Math.max(0,9.0-atkval); break;
-                            }
-                        }else if(atkval>0){
-                            switch (temp.getType()){
-                                case "P": bmodifier+=1.0; break;//AI adjust
-                                case "N": bmodifier+=3.0; break;//AI adjust
-                                case "B": bmodifier+=3.0; break;//AI adjust
-                                case "R": bmodifier+=5.0; break;//AI adjust
-                                case "Q": bmodifier+=9.0; break;//AI adjust
+                        if(b.isSquareAttacked(i, j, 'w')){
+                            int atkval=b.minSquareAttacked(i,j,'w');
+                            if(atkval>0&&b.isSquareDefended(i,j,'b')){
+                                switch (temp.getType()){
+                                    case "P": bmodifier+=Math.max(0,1.0-atkval); break;
+                                    case "N": bmodifier+=Math.max(0,3.0-atkval); break;
+                                    case "B": bmodifier+=Math.max(0,3.0-atkval); break;
+                                    case "R": bmodifier+=Math.max(0,5.0-atkval); break;
+                                    case "Q": bmodifier+=Math.max(0,9.0-atkval); break;
+                                }
+                            }else if(atkval>0){
+                                switch (temp.getType()){
+                                    case "P": bmodifier+=1.0; break;//AI adjust
+                                    case "N": bmodifier+=3.0; break;//AI adjust
+                                    case "B": bmodifier+=3.0; break;//AI adjust
+                                    case "R": bmodifier+=5.0; break;//AI adjust
+                                    case "Q": bmodifier+=9.0; break;//AI adjust
+                                }
                             }
                         }
                     }
@@ -135,8 +146,10 @@ public class ChessPlayer {
         score-=0.3*kingSafety(board,'b');//AI adjust
         score+=0.5*rookFiles(board,'w');//AI adjust
         score-=0.5*rookFiles(board,'b');//AI adjust
-        score+=0.9*pawnProgress(board,'w');//AI adjust
-        score-=0.9*pawnProgress(board,'b');//AI adjust
+        score+=1.4*pawnProgress(board,'w');//AI adjust
+        score-=1.4*pawnProgress(board,'b');//AI adjust
+        score+=0.1*activePieces(board,'w');//AI adjust
+        score-=0.1*activePieces(board,'b');//AI adjust
         List<List<Integer>> allMoves = b.getAllLegalMoves('w');
         for (List<Integer> move : allMoves) {
             score+=weights[6];
@@ -369,5 +382,21 @@ public class ChessPlayer {
             }
         }
         return progress*0.9;//AI adjust
+    }
+    public static double activePieces(ChessPiece[][] board, char team){
+        double active=0;
+        ChessBoard b=new ChessBoard();
+        b.setupBoard(board);
+        for (int c=0;c<8;c++){
+            if(team=='w')
+            if(board[7][c]!=null&&(board[7][c].getColor()==team)&&(board[7][c].getType().equals("B")||board[7][c].getType().equals("N"))){
+                active-=1;//AI adjust
+            }
+            else
+            if(board[0][c]!=null&&(board[0][c].getColor()==team)&&(board[0][c].getType().equals("B")||board[0][c].getType().equals("N"))){
+                active-=1;//AI adjust
+            }
+        }
+        return active;
     }
 }

@@ -230,7 +230,7 @@ public class ChessBoard {
                     if (i == row && j == col) continue; // skip the piece on the square itself
                     // Temporarily remove the piece at (row, col) to allow isValidMove to work as intended
                     ChessPiece original = board[row][col];
-                    board[row][col] = null;
+                    board[row][col] = new NullPiece(byPlayer=='w'?'b':'w');
                     boolean defended = (board[i][j] instanceof King && Math.abs(i - row) <= 1 && Math.abs(j - col) <= 1) ||
                         (!(board[i][j] instanceof King) && board[i][j].isValidMove(i, j, row, col, this));
                     board[row][col] = original;
@@ -241,6 +241,42 @@ public class ChessBoard {
             }
         }
         return false;
+    }
+    public int numSquareAttacked(int row, int col, char byPlayer) {
+        int count=0;
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 8; j++)
+                if (board[i][j] != null && board[i][j].getColor() == byPlayer){
+                    if((board[i][j] instanceof King && Math.abs(i - row) <= 1 && Math.abs(j - col) <= 1)){
+                        count++;
+                    }
+                    else if (!(board[i][j] instanceof King)&&board[i][j].isValidMove(i, j, row, col, this))
+                        count++;
+                }
+        return count;
+    }
+    public int numSquareDefended(int row, int col, char byPlayer) {
+        int count=0;
+        if (board[row][col] == null || board[row][col].getColor() != byPlayer) {
+            return 0;
+        }
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (board[i][j] != null && board[i][j].getColor() == byPlayer) {
+                    if (i == row && j == col) continue;// skip the piece on the square itself
+                    // Temporarily remove the piece at (row, col) to allow isValidMove to work as intended
+                    ChessPiece original = board[row][col];
+                    board[row][col] = new NullPiece(byPlayer=='w'?'b':'w');
+                    boolean defended = (board[i][j] instanceof King && Math.abs(i - row) <= 1 && Math.abs(j - col) <= 1) ||
+                        (!(board[i][j] instanceof King) && board[i][j].isValidMove(i, j, row, col, this));
+                    board[row][col] = original;
+                    if (defended) { 
+                        count++;
+                    }
+                }
+            }
+        }
+        return count;
     }
 
     public boolean isInCheckmate(char player) {
@@ -382,7 +418,7 @@ public class ChessBoard {
         int count=0;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if (board[i][j] != null && board[i][j].getColor() == team) {
+                if (board[i][j] != null) {
                     if (board[i][j] instanceof Queen) {
                         count++;
                     } else if (!(board[i][j] instanceof King)) {
@@ -397,7 +433,7 @@ public class ChessBoard {
         int count=0;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if (board[i][j] != null && board[i][j].getColor() == team) {
+                if (board[i][j] != null) {
                     if (board[i][j] instanceof Pawn) {
                         count++;
                     } else if (!(board[i][j] instanceof King)) {
