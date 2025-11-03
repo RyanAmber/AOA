@@ -7,7 +7,7 @@ public class ChessPlayer {
     public ChessPlayer(int type){
         this.type=type;
     }
-    public String[] getMove(ChessBoard board, char team){
+    public String[] getMove(ChessBoard board, char team, Map<String, Integer> boardStates){
         String[] move=new String[2];
         if (type==1){
             Scanner s=new Scanner(System.in);
@@ -15,7 +15,7 @@ public class ChessPlayer {
             move[0] = s.next();
             move[1] = s.next();
         }else if (type==2){
-            System.out.println("Current board score: " + score(board.copyBoard(), team, board.halfmoveClock, new double[]{0.0,1.0,3.0,3.0,5.0,9.0,0.02}));
+            System.out.println("Current board score: " + score(board.copyBoard(), team, board.halfmoveClock, new double[]{0.0,1.0,3.0,3.0,5.0,9.0,0.02},boardStates));
             List<List<Integer>> allMoves = board.getAllLegalMoves(team);
             Map<List<Integer>,Double> scores=new HashMap<List<Integer>,Double>();
             for (List<Integer> m : allMoves) {
@@ -34,7 +34,7 @@ public class ChessPlayer {
                 testboard[startrow][startcol] = null;
                 double[] weights={0.0,1.0,3.0,3.0,5.0,9.0,0.02};//AI adjust
                 System.out.println("Testing move: " + (char)('a' + startcol) + (8 - startrow) + " to " + (char)('a' + endcol) + (8 - endrow));
-                scores.put(m,score(testboard,team,moves,weights));
+                scores.put(m,score(testboard,team,moves,weights,boardStates));
             }
             //System.out.println("All moves listed");
             double minimaxscore=team=='w'?Double.NEGATIVE_INFINITY:Double.POSITIVE_INFINITY;
@@ -72,7 +72,7 @@ public class ChessPlayer {
         System.out.println("Chosen move: " + move[0] + " to " + move[1]);
         return move;
     }
-    public double score(ChessPiece[][] board, char team,int moves,double[] weights){
+    public double score(ChessPiece[][] board, char team,int moves,double[] weights,Map<String, Integer> boardStates){
         ChessBoard b=new ChessBoard();
         b.setupBoard(board);
         double score=0;
@@ -93,11 +93,8 @@ public class ChessPlayer {
                                     case "P": wmodifier-=Math.max(0,1.0-atkval); break;
                                     case "N": wmodifier-=Math.max(0,3.0-atkval); break;
                                     case "B": wmodifier-=Math.max(0,3.0-atkval); break;
-                                    case "R": wmodifier-=Math.max(0,5.0-atkval); break;
+                                    case "R": wmodifier-=Math.max(0,5.5-atkval); break;
                                     case "Q": wmodifier-=Math.max(0,9.0-atkval); break;
-                                }
-                                if(temp.getType().equals("Q")){
-                                    System.out.println("White queen attacked at " + i + "," + j + " with attack value " + atkval + ", defenders: " + numdefenders + ", attackers: " + numatkers);
                                 }
                             }else if(atkval>0){
                                 switch (temp.getType()){
@@ -118,7 +115,7 @@ public class ChessPlayer {
                                     case "P": bmodifier+=Math.max(0,1.0-atkval); break;
                                     case "N": bmodifier+=Math.max(0,3.0-atkval); break;
                                     case "B": bmodifier+=Math.max(0,3.0-atkval); break;
-                                    case "R": bmodifier+=Math.max(0,5.0-atkval); break;
+                                    case "R": bmodifier+=Math.max(0,5.5-atkval); break;
                                     case "Q": bmodifier+=Math.max(0,9.0-atkval); break;
                                 }
                             }else if(atkval>0){
@@ -136,11 +133,11 @@ public class ChessPlayer {
             }
         }
         if(team=='w'){
-            score+=wmodifier;
-            score+=bmodifier*0.1;
+            score+=wmodifier*2;
+            score+=bmodifier*0.2;
         }else{
-            score+=bmodifier;
-            score+=wmodifier*0.1;
+            score+=bmodifier*2;
+            score+=wmodifier*0.2;
         }
         score+=0.3*kingSafety(board,'w');//AI adjust
         score-=0.3*kingSafety(board,'b');//AI adjust
@@ -161,6 +158,9 @@ public class ChessPlayer {
             score-=weights[6];
             if(move.size()>0)
             move.get(0);
+        }
+        if(boardStates.containsKey(b.toString())){
+            score-=5.0*boardStates.get(b.toString());
         }
         if (b.isInCheck('w')){
             score-=0.3;//AI adjust
@@ -200,10 +200,12 @@ public class ChessPlayer {
         if(b.onlyPawn('w')){
             board=b.getBoard();
             score+=100*pawnSolve(board,'w');
+            score+=500;
         }
         if(b.onlyPawn('b')){
             board=b.getBoard();
             score-=100*pawnSolve(board,'b');
+            score-=500;
         }
         return Math.round(score*1000.0)/1000.0;
     }

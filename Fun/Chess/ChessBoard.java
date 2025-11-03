@@ -24,6 +24,16 @@ public class ChessBoard {
 
         kingPosition = new int[]{7, 4, 0, 4};
     }
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                sb.append(board[i][j] == null ? "." : board[i][j].toString());
+            }
+            sb.append("/");
+        }
+        return sb.toString();
+    }
     private void setupPieces() {
         // Pawns
         for (int i = 0; i < 8; i++) {
@@ -434,15 +444,15 @@ public class ChessBoard {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 if (board[i][j] != null) {
-                    if (board[i][j] instanceof Pawn) {
+                    if (board[i][j] instanceof Pawn && board[i][j].getColor() == team) {
                         count++;
-                    } else if (!(board[i][j] instanceof King)) {
+                    } else if (!(board[i][j] instanceof King) && board[i][j].getColor() != team) {
                         return false;
                     }
                 }
             }
         }
-        return count >= 1;
+        return count == 1;
     }
 
     public void printBoard() {
@@ -459,5 +469,8 @@ public class ChessBoard {
     }
     public ChessPiece[][] getBoard() {
         return board;
+    }
+    public ChessBoard(ChessPiece[][] b) {
+        setupBoard(b);
     }
 }

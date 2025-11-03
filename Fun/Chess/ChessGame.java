@@ -1,5 +1,5 @@
 package Fun.Chess;
-import java.util.Scanner;
+import java.util.*;
 
 public class ChessGame {
     public static void main(String[] args) {
@@ -15,14 +15,20 @@ public class ChessGame {
         int w2 = 0;
         int t = 0;
 
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i <1; i++) {
             System.out.println("Starting game                                                 " + (i + 1));
             char currentPlayer = 'w';
             boolean gameOver = false;
             ChessBoard board = new ChessBoard();
+            Map<String, Integer> boardStates = new HashMap<String, Integer>();
 
             while (!gameOver) {
                 board.printBoard();
+                if(boardStates.containsKey(board.toString())) {
+                    boardStates.put(board.toString(), boardStates.get(board.toString()) + 1);
+                } else {
+                    boardStates.put(board.toString(), 1);
+                }
 
                 if (board.isInCheckmate(currentPlayer)) {
                     System.out.println((currentPlayer == 'w' ? "White" : "Black") + " is in checkmate. Game over!");
@@ -31,6 +37,12 @@ public class ChessGame {
                     } else {
                         w1++;
                     }
+                    gameOver = true;
+                    continue;
+                }
+                if (boardStates.get(board.toString()) >= 3) {
+                    System.out.println("Draw by threefold repetition! Game over!");
+                    t++;
                     gameOver = true;
                     continue;
                 }
@@ -64,9 +76,9 @@ public class ChessGame {
                     System.out.println((currentPlayer == 'w' ? "White" : "Black") + "'s move.");
                     String[] move;
                     if (currentPlayer == 'w') {
-                        move = p1.getMove(board, 'w');
+                        move = p1.getMove(board, 'w',boardStates);
                     } else {
-                        move = p2.getMove(board, 'b');
+                        move = p2.getMove(board, 'b',boardStates);
                     }
 
                     /*
