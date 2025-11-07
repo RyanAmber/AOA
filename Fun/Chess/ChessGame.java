@@ -76,9 +76,9 @@ public class ChessGame {
                     System.out.println((currentPlayer == 'w' ? "White" : "Black") + "'s move.");
                     String[] move;
                     if (currentPlayer == 'w') {
-                        move = p1.getMove(board, 'w',boardStates);
+                        move = p1.getMove(board, 'w',boardStates,scanner);
                     } else {
-                        move = p2.getMove(board, 'b',boardStates);
+                        move = p2.getMove(board, 'b',boardStates,scanner);
                     }
 
                     /*

@@ -7,10 +7,9 @@ public class ChessPlayer {
     public ChessPlayer(int type){
         this.type=type;
     }
-    public String[] getMove(ChessBoard board, char team, Map<String, Integer> boardStates){
+    public String[] getMove(ChessBoard board, char team, Map<String, Integer> boardStates,Scanner s){
         String[] move=new String[2];
-        if (type==1){
-            Scanner s=new Scanner(System.in);
+        if (type==1){  
             System.out.print("Enter move (e.g., g1 f3): ");
             move[0] = s.next();
             move[1] = s.next();
@@ -32,7 +31,7 @@ public class ChessPlayer {
                 }
                 testboard[endrow][endcol] = testboard[startrow][startcol];
                 testboard[startrow][startcol] = null;
-                double[] weights={0.0,1.0,3.0,3.0,5.0,9.0,0.02};//AI adjust
+                double[] weights=getWeights();//AI adjust
                 System.out.println("Testing move: " + (char)('a' + startcol) + (8 - startrow) + " to " + (char)('a' + endcol) + (8 - endrow));
                 scores.put(m,score(testboard,team,moves,weights,boardStates));
             }
@@ -67,10 +66,15 @@ public class ChessPlayer {
                 move[1] = "" + (char)('a' + moveIndices.get(3)) + (8 - moveIndices.get(2));
             }
         }else if(type==4){
+            ChessBoardNode rootNode=new ChessBoardNode(board,team,boardStates);
+            rootNode.getAllNextMoves();
             
         }
         System.out.println("Chosen move: " + move[0] + " to " + move[1]);
         return move;
+    }
+    public double[] getWeights(){
+        return new double[]{0.0,1.0,3.0,3.0,5.0,9.0,0.02};//AI adjust
     }
     public double score(ChessPiece[][] board, char team,int moves,double[] weights,Map<String, Integer> boardStates){
         ChessBoard b=new ChessBoard();
@@ -93,7 +97,7 @@ public class ChessPlayer {
                                     case "P": wmodifier-=Math.max(0,1.0-atkval); break;
                                     case "N": wmodifier-=Math.max(0,3.0-atkval); break;
                                     case "B": wmodifier-=Math.max(0,3.0-atkval); break;
-                                    case "R": wmodifier-=Math.max(0,5.5-atkval); break;
+                                    case "R": wmodifier-=Math.max(0,5.0-atkval); break;
                                     case "Q": wmodifier-=Math.max(0,9.0-atkval); break;
                                 }
                             }else if(atkval>0){
@@ -115,7 +119,7 @@ public class ChessPlayer {
                                     case "P": bmodifier+=Math.max(0,1.0-atkval); break;
                                     case "N": bmodifier+=Math.max(0,3.0-atkval); break;
                                     case "B": bmodifier+=Math.max(0,3.0-atkval); break;
-                                    case "R": bmodifier+=Math.max(0,5.5-atkval); break;
+                                    case "R": bmodifier+=Math.max(0,5.0-atkval); break;
                                     case "Q": bmodifier+=Math.max(0,9.0-atkval); break;
                                 }
                             }else if(atkval>0){
@@ -143,8 +147,8 @@ public class ChessPlayer {
         score-=0.3*kingSafety(board,'b');//AI adjust
         score+=0.5*rookFiles(board,'w');//AI adjust
         score-=0.5*rookFiles(board,'b');//AI adjust
-        score+=1.4*pawnProgress(board,'w');//AI adjust
-        score-=1.4*pawnProgress(board,'b');//AI adjust
+        score+=1.2*pawnProgress(board,'w');//AI adjust
+        score-=1.2*pawnProgress(board,'b');//AI adjust
         score+=0.1*activePieces(board,'w');//AI adjust
         score-=0.1*activePieces(board,'b');//AI adjust
         List<List<Integer>> allMoves = b.getAllLegalMoves('w');
@@ -160,7 +164,7 @@ public class ChessPlayer {
             move.get(0);
         }
         if(boardStates.containsKey(b.toString())){
-            score-=5.0*boardStates.get(b.toString());
+            score-=2.0*boardStates.get(b.toString());
         }
         if (b.isInCheck('w')){
             score-=0.3;//AI adjust

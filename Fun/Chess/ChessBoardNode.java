@@ -5,19 +5,35 @@ public class ChessBoardNode {
     private ChessBoard data;
     private List<ChessBoardNode> nextMoves;
     private char playerTurn;
+    private Map<String,Integer> boardStates;
 
-    public ChessBoardNode(ChessBoard data, char playerTurn) {
+    public ChessBoardNode(ChessBoard data, char playerTurn, Map<String,Integer> boardStates) {
         this.data = data;
         this.playerTurn = playerTurn;
         this.nextMoves = new ArrayList<>();
+        this.boardStates = boardStates;
     }
     public void addNext(ChessBoardNode node) {
         nextMoves.add(node);
     }
-    public void setDataToMaxDepth(int depth) {
+    public double getScoreAtDepth(int depth) {
+        ChessPlayer p=new ChessPlayer(3);
+        int moves=data.halfmoveClock;
         if(depth==0) {
-            return;
+            return p.score(data.getBoard(),playerTurn,moves,p.getWeights(),boardStates);
         }
+        double bestScore = playerTurn == 'w' ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
+        for (ChessBoardNode child : nextMoves) {
+            double childScore = child.getScoreAtDepth(depth - 1);
+            if (playerTurn == 'w') {
+                bestScore = Math.max(bestScore, childScore);
+            } else {
+                bestScore = Math.min(bestScore, childScore);
+            }
+        }
+        return bestScore;
+    }
+    public void getAllNextMoves(){
         List<List<Integer>> possibleMoves = data.getAllLegalMoves(playerTurn);
         for (List<Integer> move : possibleMoves) {
             ChessBoard newBoard = new ChessBoard();
@@ -29,11 +45,10 @@ public class ChessBoardNode {
             ChessPiece[][] tempBoard = newBoard.getBoard();
             tempBoard[endrow][endcol] = tempBoard[startrow][startcol];
             tempBoard[startrow][startcol] = null;
-            char nextPlayer = (playerTurn == 'W') ? 'B' : 'W';
             newBoard.setupBoard(tempBoard);
-            ChessBoardNode childNode = new ChessBoardNode(newBoard, nextPlayer);
+            boardStates.put(newBoard.board.toString(), boardStates.getOrDefault(newBoard.board.toString(), 0) + 1);
+            ChessBoardNode childNode = new ChessBoardNode(newBoard, playerTurn == 'W' ? 'B' : 'W',boardStates);
             this.addNext(childNode);
-            childNode.setDataToMaxDepth(depth - 1);
         }
     }
 
