@@ -66,9 +66,24 @@ public class ChessPlayer {
                 move[1] = "" + (char)('a' + moveIndices.get(3)) + (8 - moveIndices.get(2));
             }
         }else if(type==4){
-            ChessBoardNode rootNode=new ChessBoardNode(board,team,boardStates);
+            ChessBoardNode rootNode=new ChessBoardNode(board,team,boardStates,new ArrayList<>());
             rootNode.getAllNextMoves();
-            
+            double bestScore=team=='w'?Double.NEGATIVE_INFINITY:Double.POSITIVE_INFINITY;
+            for (ChessBoardNode checkMove:rootNode.getNextMoves()) {
+                double moveScore = checkMove.getScoreAtDepth(2);
+                if (team == 'w'&&moveScore>bestScore) {
+                    bestScore = moveScore;
+                    List<Integer> moveIndices = checkMove.getMove();
+                    move[0] = "" + (char)('a' + moveIndices.get(1)) + (8 - moveIndices.get(0));
+                    move[1] = "" + (char)('a' + moveIndices.get(3)) + (8 - moveIndices.get(2));
+                } else if(team == 'b'&&moveScore<bestScore) {
+                    bestScore = moveScore;
+                    List<Integer> moveIndices = checkMove.getMove();
+                    move[0] = "" + (char)('a' + moveIndices.get(1)) + (8 - moveIndices.get(0));
+                    move[1] = "" + (char)('a' + moveIndices.get(3)) + (8 - moveIndices.get(2));
+                }
+            }
+
         }
         System.out.println("Chosen move: " + move[0] + " to " + move[1]);
         return move;
@@ -163,8 +178,10 @@ public class ChessPlayer {
             if(move.size()>0)
             move.get(0);
         }
-        if(boardStates.containsKey(b.toString())){
+        if(boardStates.containsKey(b.toString())&&team=='w'){
             score-=2.0*boardStates.get(b.toString());
+        }else if(boardStates.containsKey(b.toString())&&team=='b'){
+            score+=2.0*boardStates.get(b.toString());
         }
         if (b.isInCheck('w')){
             score-=0.3;//AI adjust

@@ -4,17 +4,22 @@ import java.util.*;
 public class ChessBoardNode {
     private ChessBoard data;
     private List<ChessBoardNode> nextMoves;
+    private List<Integer> move;
     private char playerTurn;
     private Map<String,Integer> boardStates;
 
-    public ChessBoardNode(ChessBoard data, char playerTurn, Map<String,Integer> boardStates) {
+    public ChessBoardNode(ChessBoard data, char playerTurn, Map<String,Integer> boardStates,List<Integer> move) {
         this.data = data;
         this.playerTurn = playerTurn;
         this.nextMoves = new ArrayList<>();
+        this.move = move;
         this.boardStates = boardStates;
     }
     public void addNext(ChessBoardNode node) {
         nextMoves.add(node);
+    }
+    public List<Integer> getMove() {
+        return move;
     }
     public double getScoreAtDepth(int depth) {
         ChessPlayer p=new ChessPlayer(3);
@@ -33,6 +38,9 @@ public class ChessBoardNode {
         }
         return bestScore;
     }
+    public List<ChessBoardNode> getNextMoves() {
+        return nextMoves;
+    }
     public void getAllNextMoves(){
         List<List<Integer>> possibleMoves = data.getAllLegalMoves(playerTurn);
         for (List<Integer> move : possibleMoves) {
@@ -47,7 +55,7 @@ public class ChessBoardNode {
             tempBoard[startrow][startcol] = null;
             newBoard.setupBoard(tempBoard);
             boardStates.put(newBoard.board.toString(), boardStates.getOrDefault(newBoard.board.toString(), 0) + 1);
-            ChessBoardNode childNode = new ChessBoardNode(newBoard, playerTurn == 'W' ? 'B' : 'W',boardStates);
+            ChessBoardNode childNode = new ChessBoardNode(newBoard, playerTurn == 'W' ? 'B' : 'W',boardStates,move);
             this.addNext(childNode);
         }
     }

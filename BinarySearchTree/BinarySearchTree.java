@@ -85,9 +85,6 @@ private boolean containsHelper(TreeNode<E> node, E data) {
 otherwise
 */
 public boolean remove(E data) {
-// TODO: Implement this method
-// Hint: Use a recursive helper method
-// You may want to keep track of whether removal was successful
 int originalSize = size;
 root = removeHelper(root, data);
 return size < originalSize;
@@ -100,19 +97,31 @@ return size < originalSize;
 * @return the node after removal
 */
 private TreeNode<E> removeHelper(TreeNode<E> node, E data) {
-// TODO: Implement this method
-// Base case: if node is null, element not found
-// Recursive case: search for the node to remove
+if(node==null){
+    return node;
+}
 int cmp = data.compareTo(node.data);
 if (cmp < 0) {
     node.left = removeHelper(node.left, data);
+    return node.left;
 } else if (cmp > 0) {
     node.right = removeHelper(node.right, data);
+    return node.right;
 } else {
     size--;
     if(node.left==null&&node.right==null){
         return null;
-    }else if(node.left==null)
+    }else if(node.left==null){ 
+        return node.right;
+    }else if(node.right==null){
+        return node.left;
+    }else{
+        TreeNode<E> successor=findMinNode(node.right);
+        node.data=successor.data;
+        removeHelper(successor,successor.data);
+        return successor;
+    }
+}
 // // Case 1: No children (leaf node)
 // // Return null
 //
@@ -124,7 +133,6 @@ if (cmp < 0) {
 // // Replace node's data with successor's data
 // // Remove the successor from right subtree
 // }
-return null;
 }
 /**
 * Helper method to find minimum node in a subtree.
@@ -157,9 +165,15 @@ return findMinNode(root).data;
 * @throws NoSuchElementException if the tree is empty
 */
 public E findMax() {
-// TODO: Implement this method
-// Hint: Keep going right until you can't anymore
-throw new NoSuchElementException("Tree is empty");
+    if(root==null)
+    throw new NoSuchElementException("Tree is empty");
+    else{
+        TreeNode<E> temp=root;
+        while(temp.right!=null){
+            temp=temp.right;
+        }
+        return temp.data;
+    }   
 }
 /**
 * Returns the number of elements in the tree.
@@ -185,9 +199,10 @@ return size == 0;
 */
 public List<E> preorderTraversal() {
 List<E> result = new ArrayList<>();
-result.add(root.data);
-preorderHelper(root.left,result);
-preorderHelper(root.right,result);
+if(root==null){
+    return result;
+}
+preorderHelper(root,result);
 return result;
 }
 /**
@@ -211,9 +226,10 @@ private void preorderHelper(TreeNode<E> node, List<E> result)
 */
 public List<E> inorderTraversal() {
 List<E> result = new ArrayList<>();
-inorderHelper(root.left,result);
-result.add(root.data);
-inorderHelper(root.right,result);
+if(root==null){
+    return result;
+}
+inorderHelper(root,result);
 return result;
 }
 /**
@@ -236,9 +252,10 @@ private void inorderHelper(TreeNode<E> node, List<E> result) {
 */
 public List<E> postorderTraversal() {
     List<E> result = new ArrayList<>();
-    postorderHelper(root.left,result);
-    postorderHelper(root.right,result);
-    result.add(root.data);
+    if(root==null){
+       return result;
+    }
+    postorderHelper(root,result);
     return result;
 }
 /**
@@ -294,8 +311,7 @@ private void pushLeft(TreeNode<E> node) {
 */
 @Override
 public boolean hasNext() {
-// TODO: Implement this method
-return false;
+return !stack.empty();
 }
 /**
 * Returns the next element in the iteration.
@@ -306,9 +322,11 @@ exist
 */
 @Override
 public E next() {
-// TODO: Implement this method
-// Hint: Pop from stack, process right child if it exists
-throw new NoSuchElementException();
+    if(hasNext()){
+E value=stack.pop().data;
+return value;
+    }
+    return null;
 }
 }
 /**

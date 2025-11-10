@@ -13,7 +13,7 @@ public class ChessBoard {
     int fullmoveNumber = 1;
 
     public ChessBoard() { setupPieces(); }
-    private void setupTestBoard() {
+    /*private void setupTestBoard() {
         // Example test setup
         board[7][4] = new King('w');
         board[0][4] = new King('b');
@@ -23,7 +23,7 @@ public class ChessBoard {
         board[1][2]=new Pawn('b');
 
         kingPosition = new int[]{7, 4, 0, 4};
-    }
+    }*/
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 8; i++) {
