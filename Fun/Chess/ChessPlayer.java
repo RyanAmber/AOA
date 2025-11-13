@@ -164,8 +164,8 @@ public class ChessPlayer {
         score-=0.5*rookFiles(board,'b');//AI adjust
         score+=1.2*pawnProgress(board,'w');//AI adjust
         score-=1.2*pawnProgress(board,'b');//AI adjust
-        score+=0.1*activePieces(board,'w');//AI adjust
-        score-=0.1*activePieces(board,'b');//AI adjust
+        score+=0.4*activePieces(board,'w');//AI adjust
+        score-=0.4*activePieces(board,'b');//AI adjust
         List<List<Integer>> allMoves = b.getAllLegalMoves('w');
         for (List<Integer> move : allMoves) {
             score+=weights[6];
@@ -201,9 +201,9 @@ public class ChessPlayer {
             score=0;
         }
         if (b.isInCheckmate('w')){
-            score-=100000;
+            score-=200000;
         }else if(b.isInCheckmate('b')){
-            score+=100000;
+            score+=200000;
         }
         if(b.onlyQueen('w')){
             board=b.getBoard();
@@ -218,7 +218,7 @@ public class ChessPlayer {
                 score+=500;
             }
         }
-        if(b.onlyPawn('w')){
+        /*if(b.onlyPawn('w')){
             board=b.getBoard();
             score+=100*pawnSolve(board,'w');
             score+=500;
@@ -227,8 +227,8 @@ public class ChessPlayer {
             board=b.getBoard();
             score-=100*pawnSolve(board,'b');
             score-=500;
-        }
-        return Math.round(score*1000.0)/1000.0;
+        } */
+        return Math.round(score*1000.0)/2000.0;
     }
     public int queenSolve(ChessPiece[][] board, char team){
         
