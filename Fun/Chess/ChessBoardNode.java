@@ -54,7 +54,7 @@ public class ChessBoardNode {
             tempBoard[endrow][endcol] = tempBoard[startrow][startcol];
             tempBoard[startrow][startcol] = null;
             newBoard.setupBoard(tempBoard);
-            boardStates.put(newBoard.board.toString(), boardStates.getOrDefault(newBoard.board.toString(), 0) + 1);
+            boardStates.put(newBoard.toString(), boardStates.getOrDefault(newBoard.board.toString(), 0) + 1);
             ChessBoardNode childNode = new ChessBoardNode(newBoard, playerTurn == 'W' ? 'B' : 'W',boardStates,move);
             this.addNext(childNode);
         }

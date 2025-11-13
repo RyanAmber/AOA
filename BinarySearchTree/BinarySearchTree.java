@@ -85,9 +85,11 @@ private boolean containsHelper(TreeNode<E> node, E data) {
 otherwise
 */
 public boolean remove(E data) {
-int originalSize = size;
-root = removeHelper(root, data);
-return size < originalSize;
+    if(!contains(data))
+    return false;
+    root = removeHelper(root, data);
+    size--;
+return true;
 }
 /**
 * Recursive helper method for removal.
@@ -103,12 +105,9 @@ if(node==null){
 int cmp = data.compareTo(node.data);
 if (cmp < 0) {
     node.left = removeHelper(node.left, data);
-    return node.left;
 } else if (cmp > 0) {
     node.right = removeHelper(node.right, data);
-    return node.right;
 } else {
-    size--;
     if(node.left==null&&node.right==null){
         return null;
     }else if(node.left==null){ 
@@ -118,10 +117,10 @@ if (cmp < 0) {
     }else{
         TreeNode<E> successor=findMinNode(node.right);
         node.data=successor.data;
-        removeHelper(successor,successor.data);
-        return successor;
+        node.right=removeHelper(node.right,successor.data);
     }
 }
+return node;
 // // Case 1: No children (leaf node)
 // // Return null
 //
